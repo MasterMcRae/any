@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>老挝安品工业园智能化系统 — 拓扑架构图</title>
+<style>
+:root {
+  --bg-deep: #070d14;
+  --bg-primary: #0b1521;
+  --bg-elevated: #111d2b;
+  --bg-glass: rgba(17,29,43,0.72);
+  --border-subtle: rgba(255,255,255,0.06);
+  --border-default: rgba(255,255,255,0.10);
+  --border-accent: rgba(255,255,255,0.16);
+  --text-primary: #e8edf2;
+  --text-secondary: #9aafc4;
+  --text-muted: #5a6e82;
+
+  --cloud:     #a78bfa;
+  --cloud-bg:  rgba(167,139,250,0.10);
+  --cloud-bd:  rgba(167,139,250,0.30);
+  --security:  #f87171;
+  --security-bg: rgba(248,113,113,0.10);
+  --security-bd: rgba(248,113,113,0.30);
+  --core:      #60a5fa;
+  --core-bg:   rgba(96,165,250,0.10);
+  --core-bd:   rgba(96,165,250,0.30);
+  --odn:       #2dd4bf;
+  --odn-bg:    rgba(45,212,191,0.10);
+  --odn-bd:    rgba(45,212,191,0.30);
+  --onu:       #fb923c;
+  --onu-bg:    rgba(251,146,60,0.10);
+  --onu-bd:    rgba(251,146,60,0.30);
+  --server:    #818cf8;
+  --server-bg: rgba(129,140,248,0.10);
+  --third:     #c084fc;
+  --third-bg:  rgba(192,132,252,0.10);
+  --terminal:  #22d3ee;
+  --terminal-bg: rgba(34,211,238,0.10);
+  --linkage:   #94a3b8;
+
+  --sub-cam:    #4ade80;
+  --sub-loc:    #c084fc;
+  --sub-door:   #fb923c;
+  --sub-gate:   #f87171;
+  --sub-car:    #2dd4bf;
+  --sub-fire:   #f87171;
+  --sub-fence:  #64748b;
+  --sub-bcast:  #4ade80;
+  --sub-energy: #facc15;
+  --sub-grid:   #a8a29e;
+  --sub-oa:     #60a5fa;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.04);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.06);
+  --shadow-glow: 0 0 20px rgba(96,165,250,0.15);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { font-size: 15px; scroll-behavior: smooth; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  background: var(--bg-deep);
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(96,165,250,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 100%, rgba(167,139,250,0.04) 0%, transparent 60%);
+  color: var(--text-primary);
+  line-height: 1.55;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Header ─── */
+.header {
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border-bottom: 1px solid var(--border-default);
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-left { display:flex; flex-direction:column; gap:4px; }
+.header h1 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  background: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.header-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.header-tag {
+  font-size: 0.65rem;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  letter-spacing: 0.3px;
+  transition: all 0.2s var(--ease-out);
+}
+.header-tag:hover { border-color: var(--border-accent); color: var(--text-primary); }
+.header-status {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border-subtle);
+  transition: all 0.25s var(--ease-out);
+}
+.header-status.has-focus {
+  border-color: var(--core-bd);
+  color: var(--core);
+}
+.status-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--text-muted);
+  transition: all 0.3s var(--ease-out);
+}
+.header-status.has-focus .status-dot {
+  background: var(--core);
+  box-shadow: 0 0 10px var(--core);
+}
+
+/* ─── Main layout ─── */
+.main {
+  display: grid;
+  grid-template-columns: 1fr 440px;
+  gap: 0;
+  min-height: calc(100vh - 76px);
+}
+@media (max-width: 1200px) { .main { grid-template-columns: 1fr; } }
+
+/* ─── Topology panel ─── */
+.topo-panel {
+  padding: 28px 36px 48px;
+  overflow-y: auto;
+  max-height: calc(100vh - 76px);
+}
+.topo-panel::-webkit-scrollbar { width: 5px; }
+.topo-panel::-webkit-scrollbar-track { background: transparent; }
+.topo-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+.topo-panel::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.14); }
+
+/* Layer styling */
+.layer { margin-bottom: 16px; }
+
+.layer-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  margin-bottom: 14px;
+  border-radius: var(--radius-md);
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border-subtle);
+  transition: all 0.3s var(--ease-out);
+}
+.layer-header:hover { background: rgba(255,255,255,0.04); }
+.layer-header .layer-stripe {
+  width: 4px; height: 28px; border-radius: 2px; flex-shrink: 0;
+  transition: all 0.3s var(--ease-out);
+}
+.layer-header:hover .layer-stripe {
+  width: 6px;
+}
+.layer-label {
+  font-size: 0.82rem;
+  font-weight: 650;
+  letter-spacing: 0.2px;
+  flex: 1;
+}
+.layer-count {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border-subtle);
+}
+
+/* Nodes grid */
+.nodes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+  gap: 10px;
+  padding-left: 20px;
+  padding-right: 4px;
+  position: relative;
+}
+.nodes::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  bottom: 8px;
+  width: 1.5px;
+  border-radius: 1px;
+  background: linear-gradient(180deg,
+    var(--border-accent) 0%,
+    var(--border-subtle) 50%,
+    var(--border-accent) 100%);
+}
+
+/* ─── Node card ─── */
+.node {
+  background: var(--bg-glass);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-out);
+  position: relative;
+  overflow: hidden;
+}
+.node::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-md);
+  opacity: 0;
+  transition: opacity 0.3s var(--ease-out);
+  pointer-events: none;
+  z-index: 0;
+}
+.node:hover {
+  transform: translateY(-3px) scale(1.015);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--border-accent);
+}
+.node:hover::after {
+  opacity: 1;
+}
+.node.active {
+  border-color: var(--core);
+  box-shadow: var(--shadow-lg), 0 0 0 1px var(--core), 0 0 30px rgba(96,165,250,0.12);
+  transform: translateY(-2px);
+}
+.node:active { transform: translateY(-1px) scale(0.99); transition: all 0.1s var(--ease-out); }
+
+.node > * { position: relative; z-index: 1; }
+
+.node .node-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 6px; }
+.node .node-icon {
+  font-size: 1.15rem;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.05);
+}
+.node .node-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text-primary);
+}
+.node .node-desc {
+  font-size: 0.66rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.node .connector-dot {
+  position: absolute;
+  left: -16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--border-default);
+  z-index: 3;
+  transition: all 0.3s var(--ease-out);
+}
+.node:hover .connector-dot {
+  background: var(--text-secondary);
+  box-shadow: 0 0 8px rgba(255,255,255,0.2);
+}
+.node .connector-dot.active-dot {
+  animation: dotPulse 2.5s ease-in-out infinite;
+}
+@keyframes dotPulse {
+  0%, 100% { box-shadow: 0 0 4px var(--core); }
+  50% { box-shadow: 0 0 18px var(--core), 0 0 30px rgba(96,165,250,0.3); }
+}
+
+/* Color accents per layer */
+.node.cloud { border-left: 3px solid var(--cloud); }
+.node.cloud::after { background: radial-gradient(circle at 0% 50%, rgba(167,139,250,0.08), transparent 60%); }
+.node.cloud .connector-dot.active-dot { background: var(--cloud); animation-name: dotPulseCloud; }
+@keyframes dotPulseCloud { 0%,100% {box-shadow:0 0 4px var(--cloud);} 50%{box-shadow:0 0 18px var(--cloud),0 0 30px rgba(167,139,250,0.3);} }
+
+.node.security { border-left: 3px solid var(--security); }
+.node.security::after { background: radial-gradient(circle at 0% 50%, rgba(248,113,113,0.08), transparent 60%); }
+.node.security .connector-dot.active-dot { background: var(--security); animation-name: dotPulseSecurity; }
+@keyframes dotPulseSecurity { 0%,100% {box-shadow:0 0 4px var(--security);} 50%{box-shadow:0 0 18px var(--security),0 0 30px rgba(248,113,113,0.3);} }
+
+.node.core { border-left: 3px solid var(--core); }
+.node.core::after { background: radial-gradient(circle at 0% 50%, rgba(96,165,250,0.08), transparent 60%); }
+.node.odn { border-left: 3px solid var(--odn); }
+.node.odn::after { background: radial-gradient(circle at 0% 50%, rgba(45,212,191,0.08), transparent 60%); }
+.node.odn .connector-dot.active-dot { background: var(--odn); animation-name: dotPulseOdn; }
+@keyframes dotPulseOdn { 0%,100% {box-shadow:0 0 4px var(--odn);} 50%{box-shadow:0 0 18px var(--odn),0 0 30px rgba(45,212,191,0.3);} }
+
+.node.onu { border-left: 3px solid var(--onu); }
+.node.onu::after { background: radial-gradient(circle at 0% 50%, rgba(251,146,60,0.08), transparent 60%); }
+.node.onu .connector-dot.active-dot { background: var(--onu); animation-name: dotPulseOnu; }
+@keyframes dotPulseOnu { 0%,100% {box-shadow:0 0 4px var(--onu);} 50%{box-shadow:0 0 18px var(--onu),0 0 30px rgba(251,146,60,0.3);} }
+
+.node.sub-cam { border-left: 3px solid var(--sub-cam); }
+.node.sub-cam::after { background: radial-gradient(circle at 0% 50%, rgba(74,222,128,0.08), transparent 60%); }
+.node.sub-loc { border-left: 3px solid var(--sub-loc); }
+.node.sub-loc::after { background: radial-gradient(circle at 0% 50%, rgba(192,132,252,0.08), transparent 60%); }
+.node.sub-door { border-left: 3px solid var(--sub-door); }
+.node.sub-door::after { background: radial-gradient(circle at 0% 50%, rgba(251,146,60,0.08), transparent 60%); }
+.node.sub-gate { border-left: 3px solid var(--sub-gate); }
+.node.sub-gate::after { background: radial-gradient(circle at 0% 50%, rgba(248,113,113,0.08), transparent 60%); }
+.node.sub-car { border-left: 3px solid var(--sub-car); }
+.node.sub-car::after { background: radial-gradient(circle at 0% 50%, rgba(45,212,191,0.08), transparent 60%); }
+.node.sub-fire { border-left: 3px solid var(--sub-fire); }
+.node.sub-fire::after { background: radial-gradient(circle at 0% 50%, rgba(248,113,113,0.08), transparent 60%); }
+.node.sub-fence { border-left: 3px solid var(--sub-fence); }
+.node.sub-fence::after { background: radial-gradient(circle at 0% 50%, rgba(100,116,139,0.08), transparent 60%); }
+.node.sub-bcast { border-left: 3px solid var(--sub-bcast); }
+.node.sub-bcast::after { background: radial-gradient(circle at 0% 50%, rgba(74,222,128,0.08), transparent 60%); }
+.node.sub-energy { border-left: 3px solid var(--sub-energy); }
+.node.sub-energy::after { background: radial-gradient(circle at 0% 50%, rgba(250,204,21,0.08), transparent 60%); }
+.node.sub-grid { border-left: 3px solid var(--sub-grid); }
+.node.sub-grid::after { background: radial-gradient(circle at 0% 50%, rgba(168,162,158,0.08), transparent 60%); }
+.node.sub-oa { border-left: 3px solid var(--sub-oa); }
+.node.sub-oa::after { background: radial-gradient(circle at 0% 50%, rgba(96,165,250,0.08), transparent 60%); }
+
+/* Subsystem layout */
+.sub-section { margin-bottom: 14px; }
+
+.sub-title {
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 8px 14px;
+  margin-bottom: 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.025);
+  border: 1px solid var(--border-subtle);
+  border-left: 4px solid;
+  color: var(--text-primary);
+  letter-spacing: 0.2px;
+  transition: all 0.25s var(--ease-out);
+}
+.sub-title:hover { background: rgba(255,255,255,0.04); }
+
+.sub-nodes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+  gap: 8px;
+  padding-left: 20px;
+}
+.sub-nodes .node {
+  padding: 10px 14px;
+  font-size: 0.72rem;
+}
+.sub-nodes .node .node-name {
+  font-size: 0.72rem;
+  font-weight: 550;
+}
+
+/* VLAN badges row */
+.vlan-row {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  padding: 6px 0 6px 20px; margin-top: 2px;
+}
+.vlan-chip {
+  font-size: 0.62rem; font-weight: 500;
+  padding: 4px 12px; border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
+  color: var(--text-secondary);
+  letter-spacing: 0.3px;
+  transition: all 0.2s var(--ease-out);
+}
+.vlan-chip:hover { border-color: rgba(255,255,255,0.18); }
+
+/* Uplink label-between layers */
+.uplink-hint {
+  text-align: center;
+  padding: 5px 0 3px 20px;
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+/* ─── Side panel ─── */
+.side-panel {
+  background: var(--bg-elevated);
+  border-left: 1px solid var(--border-default);
+  padding: 24px 20px 40px;
+  overflow-y: auto;
+  max-height: calc(100vh - 76px);
+}
+.side-panel::-webkit-scrollbar { width: 5px; }
+.side-panel::-webkit-scrollbar-track { background: transparent; }
+.side-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+.side-panel::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.14); }
+
+.panel-section {
+  background: var(--bg-glass);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  transition: all 0.25s var(--ease-out);
+}
+.panel-section:hover {
+  border-color: var(--border-default);
+  box-shadow: var(--shadow-sm);
+}
+.panel-section h3 {
+  font-size: 0.78rem;
+  font-weight: 650;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: 0.2px;
+  color: var(--text-primary);
+}
+.panel-section h3 .indicator {
+  width: 8px; height: 8px; border-radius: 50%;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.detail-list {
+  list-style: none;
+  font-size: 0.7rem;
+}
+.detail-list li {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  transition: all 0.2s var(--ease-out);
+}
+.detail-list li:hover { color: var(--text-primary); }
+.detail-list li:last-child { border-bottom: none; }
+.detail-list li::before {
+  content: '';
+  width: 5px; height: 5px; border-radius: 50%;
+  background: currentColor;
+  opacity: 0.5;
+  margin-top: 7px;
+  flex-shrink: 0;
+}
+
+.linkage-item {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  transition: all 0.2s var(--ease-out);
+}
+.linkage-item:hover { padding-left: 4px; }
+.linkage-item:last-child { border-bottom: none; }
+.linkage-item .link-title {
+  font-size: 0.71rem;
+  font-weight: 650;
+  margin-bottom: 3px;
+  letter-spacing: 0.2px;
+}
+.linkage-item .link-desc {
+  font-size: 0.66rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.link-desc .arrow { color: var(--text-muted); opacity: 0.5; }
+
+.info-badges {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px;
+}
+.info-badge {
+  font-size: 0.6rem; font-weight: 500;
+  padding: 4px 10px; border-radius: 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  letter-spacing: 0.2px;
+  transition: all 0.2s var(--ease-out);
+}
+.info-badge:hover { border-color: var(--border-accent); }
+
+/* ─── Detail modal ─── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s var(--ease-out);
+}
+.modal-overlay.show {
+  opacity: 1;
+  pointer-events: all;
+}
+.modal-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-xl);
+  padding: 28px 30px;
+  max-width: 500px;
+  width: 92%;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06);
+  transform: translateY(16px) scale(0.97);
+  transition: transform 0.35s var(--ease-spring);
+}
+.modal-overlay.show .modal-card {
+  transform: translateY(0) scale(1);
+}
+.modal-card .modal-type {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--core);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin-bottom: 6px;
+}
+.modal-card .modal-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+  color: var(--text-primary);
+  letter-spacing: -0.2px;
+}
+.modal-card .modal-body {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+.modal-card .modal-footer {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.modal-btn {
+  padding: 9px 22px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+  background: rgba(255,255,255,0.04);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 550;
+  transition: all 0.2s var(--ease-out);
+  letter-spacing: 0.3px;
+}
+.modal-btn:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: var(--border-accent);
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 1200px) {
+  .side-panel {
+    max-height: none;
+    border-left: none;
+    border-top: 1px solid var(--border-default);
+  }
+  .topo-panel { max-height: none; padding: 20px 20px 40px; }
+  .main { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .header { padding: 10px 16px; gap: 8px; }
+  .header h1 { font-size: 1rem; }
+  .nodes { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .sub-nodes { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 6px; }
+  .node { padding: 10px 12px; }
+  .node .node-name { font-size: 0.72rem; }
+  .topo-panel { padding: 14px 12px 30px; }
+  .layer-header { padding: 8px 12px; }
+  .side-panel { padding: 16px 12px 30px; }
+  .panel-section { padding: 14px 16px; }
+  .modal-card { padding: 20px 22px; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <h1>老挝安品工业园智能化系统 — 拓扑架构图</h1>
+    <div class="header-tags">
+      <span class="header-tag">GPON / XGS-PON 全光网络</span>
+      <span class="header-tag">四网 VLAN 隔离</span>
+      <span class="header-tag">12 大智能化子系统</span>
+      <span class="header-tag">深信服纵深防御</span>
+    </div>
+  </div>
+  <div class="header-status" id="headerStatus">
+    <span class="status-dot"></span>
+    <span id="activeNodeLabel">点击节点查看详情</span>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- ═══ Left Panel: Topology ═══ -->
+  <div class="topo-panel" id="topoPanel">
+
+    <!-- Layer 1: Cloud -->
+    <div class="layer">
+      <div class="layer-header">
+        <div class="layer-stripe" style="background:var(--cloud);"></div>
+        <span class="layer-label" style="color:var(--cloud);">云端服务层 &nbsp;Cloud</span>
+        <span class="layer-count">3 项服务</span>
+      </div>
+      <div class="nodes">
+        <div class="node cloud" onclick="showDetail('cloud1')"><div class="connector-dot active-dot"></div><div class="node-top"><div class="node-icon">☁️</div><div class="node-name">云值守火情研判</div></div><div class="node-desc">AI 图像识别 · 自动火情检测与告警</div></div>
+        <div class="node cloud" onclick="showDetail('cloud2')"><div class="connector-dot"></div><div class="node-top"><div class="node-icon">🔧</div><div class="node-name">远程运维管理平台</div></div><div class="node-desc">设备监控 · 固件OTA · 日志采集</div></div>
+        <div class="node cloud" onclick="showDetail('cloud3')"><div class="connector-dot"></div><div class="node-top"><div class="node-icon">📱</div><div class="node-name">移动 APP 后端服务</div></div><div class="node-desc">推送通知 · 实时告警 · API Gateway</div></div>
+      </div>
+      <div class="uplink-hint">↑ Internet / 4G / 5G 上行链路 ↑</div>
+    </div>
+
+    <!-- Layer 2: Security -->
+    <div class="layer">
+      <div class="layer-header">
+        <div class="layer-stripe" style="background:var(--security);"></div>
+        <span class="layer-label" style="color:var(--security);">网络安全层 — 深信服纵深防御体系</span>
+        <span class="layer-count">3 项设备</span>
+      </div>
+      <div class="nodes">
+        <div class="node security" onclick="showDetail('sec1')"><div class="connector-dot active-dot"></div><div class="node-top"><div class="node-icon">🛡️</div><div class="node-name">NGAF 下一代防火墙</div></div><div class="node-desc">L7 应用识别 · IPS · AV · WAF</div></div>
+        <div class="node security" onclick="showDetail('sec2')"><div class="connector-dot active-dot"></div><div class="node-top"><div class="node-icon">📋</div><div class="node-name">AC 上网行为管理</div></div><div class="node-desc">流量审计 · 应用管控 · URL 过滤</div></div>
+        <div class="node security" onclick="showDetail('sec3')"><div class="connector-dot active-dot"></div><div class="node-top"><div class="node-icon">🔐</div><div class="node-name">SSL / IPSec VPN</div></div><div class="node-desc">AES-256-GCM 跨境加密通道</div></div>
+      </div>
+    </div>
+
+    <!-- Layer 3: Core Network -->
+    <div class="layer">
+      <div class="layer-header">
+        <div class="layer-stripe" style="background:var(--core);"></div>
+        <span class="layer-label" style="color:var(--core);">核心网络层</span>
+        <span class="layer-count">2 项核心设备</span>
+      </div>
+      <div class="nodes">
+        <div class="node core" onclick="showDetail('core1')"><div class="connector-dot active-dot"></div><div class="node-top"><div class="node-icon">🔀</div><div class="node-name">核心交换机</div></div><div class="node-desc">万兆上行 · PoE++ · L3 路由 · VRRP</div></div>
+        <div class="node core" onclick="showDetail('core2')"><div class="connector-dot active-dot"></div><div class="node-top"><div class="node-icon">💡</div><div class="node-name">OLT 光线路终端</div></div><div class="node-desc">华为 EA5800 / 锐捷 RG-IMC</div></div>
+      </div>
+      <div class="vlan-row">
+        <span class="vlan-chip" style="border-color:rgba(96,165,250,0.4); color:var(--core);">VLAN 100–199 内网</span>
+        <span class="vlan-chip" style="border-color:rgba(74,222,128,0.4); color:var(--sub-cam);">VLAN 200–299 办公网</span>
+        <span class="vlan-chip" style="border-color:rgba(251,146,60,0.4); color:var(--onu);">VLAN 300–399 访客外网</span>
+        <span class="vlan-chip" style="border-color:rgba(192,132,252,0.4); color:var(--sub-loc);">VLAN 400–499 设备专网</span>
+      </div>
+    </div>
+
+    <!-- Layer 4: ODN -->
+    <div class="layer">
+      <div class="layer-header">
+        <div class="layer-stripe" style="background:var(--odn);"></div>
+        <span class="layer-label" style="color:var(--odn);">ODN 无源光分配网络</span>
+        <span class="layer-count">一级 / 二级分光</span>
+      </div>
+      <div class="nodes">
+        <div class="node odn" onclick="showDetail('odn1')"><div class="connector-dot active-dot"></div><div class="node-top"><div class="node-icon">⚡</div><div class="node-name">1:4 分光器</div></div><div class="node-desc">车间区域 · 高带宽 · ≤7.2dB</div></div>
+        <div class="node odn" onclick="showDetail('odn2')"><div class="connector-dot active-dot"></div><div class="node-top"><div class="node-icon">⚡</div><div class="node-name">1:8 分光器</div></div><div class="node-desc">仓库 / 周界 · 中密度 · ≤10.5dB</div></div>
+        <div class="node odn" onclick="showDetail('odn3')"><div class="connector-dot active-dot"></div><div class="node-top"><div class="node-icon">⚡</div><div class="node-name">1:16 分光器</div></div><div class="node-desc">办公楼 · 高密度 · ≤13.5dB</div></div>
+      </div>
+    </div>
+
+    <!-- Layer 5: ONU -->
+    <div class="layer">
+      <div class="layer-header">
+        <div class="layer-stripe" style="background:var(--onu);"></div>
+        <span class="layer-label" style="color:var(--onu);">ONU 接入层（四网逻辑隔离）</span>
+        <span class="layer-count">4 类设备</span>
+      </div>
+      <div class="nodes">
+        <div class="node onu" onclick="showDetail('onu1')"><div class="connector-dot active-dot"></div><div class="node-top"><div class="node-icon">🏠</div><div class="node-name">室内 ONU</div></div><div class="node-desc">桌面型 · WiFi 6 · 4×GE LAN</div></div>
+        <div class="node onu" onclick="showDetail('onu2')"><div class="connector-dot active-dot"></div><div class="node-top"><div class="node-icon">🏭</div><div class="node-name">工业 ONU</div></div><div class="node-desc">室外 · PoE++ · IP67 防护</div></div>
+        <div class="node onu" onclick="showDetail('onu3')"><div class="connector-dot active-dot"></div><div class="node-top"><div class="node-icon">📡</div><div class="node-name">车间高密 ONU</div></div><div class="node-desc">8×GE · PoE+ · DIN 导轨安装</div></div>
+        <div class="node onu" onclick="showDetail('onu4')"><div class="connector-dot active-dot"></div><div class="node-top"><div class="node-icon">📶</div><div class="node-name">4G / 5G CPE</div></div><div class="node-desc">采伐区无线回传 · LoRa 物联</div></div>
+      </div>
+    </div>
+
+    <!-- Layer 6: Subsystems -->
+    <div class="sub-section">
+      <div class="sub-title" style="border-color:var(--sub-cam); color:var(--text-primary);">子系统一：视频监控系统</div>
+      <div class="sub-nodes">
+        <div class="node sub-cam" onclick="showDetail('cam1')">高清枪机</div>
+        <div class="node sub-cam" onclick="showDetail('cam2')">高清半球</div>
+        <div class="node sub-cam" onclick="showDetail('cam3')">智能警戒摄像机</div>
+        <div class="node sub-cam" onclick="showDetail('cam4')">热成像双光谱云台</div>
+        <div class="node sub-cam" onclick="showDetail('cam5')">热成像球机</div>
+        <div class="node sub-cam" onclick="showDetail('cam6')">人脸抓拍机</div>
+        <div class="node sub-cam" onclick="showDetail('cam7')">AI 智能分析服务器</div>
+        <div class="node sub-cam" onclick="showDetail('cam8')">NVR 录像机 (RAID)</div>
+      </div>
+    </div>
+    <div class="sub-section">
+      <div class="sub-title" style="border-color:var(--sub-loc);">子系统二：人员定位系统</div>
+      <div class="sub-nodes">
+        <div class="node sub-loc" onclick="showDetail('loc1')">4G 定位卡 (GPS/北斗+Cat.1)</div>
+        <div class="node sub-loc" onclick="showDetail('loc2')">SOS 一键报警终端</div>
+        <div class="node sub-loc" onclick="showDetail('loc3')">第三方定位管理平台</div>
+        <div class="node sub-loc" onclick="showDetail('loc4')">GIS 网格划分管理</div>
+      </div>
+    </div>
+    <div class="sub-section">
+      <div class="sub-title" style="border-color:var(--sub-door);">子系统三：人脸门禁系统</div>
+      <div class="sub-nodes">
+        <div class="node sub-door" onclick="showDetail('door1')">人脸识别门禁一体机</div>
+        <div class="node sub-door" onclick="showDetail('door2')">闸机伴侣 (三辊闸/翼闸)</div>
+        <div class="node sub-door" onclick="showDetail('door3')">门禁控制器 (离线 1 万条)</div>
+        <div class="node sub-door" onclick="showDetail('door4')">访客预约管理系统</div>
+      </div>
+    </div>
+    <div class="sub-section">
+      <div class="sub-title" style="border-color:var(--sub-gate);">子系统四：道闸管理系统</div>
+      <div class="sub-nodes">
+        <div class="node sub-gate" onclick="showDetail('gate1')">车牌识别一体机</div>
+        <div class="node sub-gate" onclick="showDetail('gate2')">智能道闸</div>
+        <div class="node sub-gate" onclick="showDetail('gate3')">出入口控制终端</div>
+      </div>
+    </div>
+    <div class="sub-section">
+      <div class="sub-title" style="border-color:var(--sub-car);">子系统五：车辆定位系统</div>
+      <div class="sub-nodes">
+        <div class="node sub-car" onclick="showDetail('car1')">GPS / 北斗车载终端</div>
+        <div class="node sub-car" onclick="showDetail('car2')">电子围栏超速告警</div>
+      </div>
+    </div>
+    <div class="sub-section">
+      <div class="sub-title" style="border-color:var(--sub-fire);">子系统六：火灾监控系统</div>
+      <div class="sub-nodes">
+        <div class="node sub-fire" onclick="showDetail('fire1')">热成像重载云台 (3–5 km)</div>
+        <div class="node sub-fire" onclick="showDetail('fire2')">热成像中载云台 (1–2 km)</div>
+        <div class="node sub-fire" onclick="showDetail('fire3')">烟感探测器</div>
+        <div class="node sub-fire" onclick="showDetail('fire4')">弧光探测器</div>
+      </div>
+    </div>
+    <div class="sub-section">
+      <div class="sub-title" style="border-color:var(--sub-fence);">子系统七：电子围栏系统</div>
+      <div class="sub-nodes">
+        <div class="node sub-fence" onclick="showDetail('fence1')">6 线制双防区脉冲主机</div>
+        <div class="node sub-fence" onclick="showDetail('fence2')">前端杆件 / 合金导线</div>
+      </div>
+    </div>
+    <div class="sub-section">
+      <div class="sub-title" style="border-color:var(--sub-bcast);">子系统八：应急广播系统</div>
+      <div class="sub-nodes">
+        <div class="node sub-bcast" onclick="showDetail('bcast1')">网络广播主机 (中老双语)</div>
+        <div class="node sub-bcast" onclick="showDetail('bcast2')">室外音柱 / 室内音箱</div>
+      </div>
+    </div>
+    <div class="sub-section">
+      <div class="sub-title" style="border-color:var(--sub-energy);">子系统九：能源环境监测</div>
+      <div class="sub-nodes">
+        <div class="node sub-energy" onclick="showDetail('energy1')">智能电表 / 智能水表</div>
+        <div class="node sub-energy" onclick="showDetail('energy2')">气象站 / 水位传感器</div>
+        <div class="node sub-energy" onclick="showDetail('energy3')">倾角传感器</div>
+      </div>
+    </div>
+    <div class="sub-section">
+      <div class="sub-title" style="border-color:var(--sub-grid);">子系统十：采伐区网格化管理</div>
+      <div class="sub-nodes">
+        <div class="node sub-grid" onclick="showDetail('grid1')">500m × 500m 网格划分</div>
+        <div class="node sub-grid" onclick="showDetail('grid2')">产量上限管控</div>
+      </div>
+    </div>
+    <div class="sub-section">
+      <div class="sub-title" style="border-color:var(--sub-oa);">子系统十一：办公协同平台（二期）</div>
+      <div class="sub-nodes">
+        <div class="node sub-oa" onclick="showDetail('oa1')">OA / 财务 / 人力 / 考勤 / 薪资</div>
+        <div class="node sub-oa" onclick="showDetail('oa2')">LDAP 单点登录 · 中老双语</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Right Panel: Info ═══ -->
+  <div class="side-panel" id="sidePanel">
+
+    <div class="panel-section">
+      <h3><span class="indicator" style="background:var(--server);"></span>中心机房 — 服务器集群</h3>
+      <ul class="detail-list">
+        <li>Infovision iPark 智慧园区管理平台</li>
+        <li>ISC 视频管理平台</li>
+        <li>3D 数字指挥舱 + AR 实景指挥舱</li>
+        <li>统一门禁管理平台</li>
+        <li>车辆定位管理平台</li>
+        <li>消防联动管理平台</li>
+        <li>道闸管理系统（智能停车）</li>
+        <li>DataEngine 数据底座</li>
+      </ul>
+      <div class="info-badges">
+        <span class="info-badge">应用服务器 ×N</span>
+        <span class="info-badge">存储 RAID 6</span>
+        <span class="info-badge">UPS 在线式 30 min</span>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <h3><span class="indicator" style="background:var(--third);"></span>第三方系统对接</h3>
+      <ul class="detail-list">
+        <li>MES 系统（OPC UA / RESTful）</li>
+        <li>ERP 系统（JDBC / API）</li>
+        <li>OA 系统（WebSocket）</li>
+        <li>消防报警主机（Modbus）</li>
+        <li>生产设备 PLC（OPC UA / Modbus）</li>
+      </ul>
+    </div>
+
+    <div class="panel-section">
+      <h3><span class="indicator" style="background:var(--terminal);"></span>展示与访问终端</h3>
+      <ul class="detail-list">
+        <li>数智运营中心大屏（园区数字看板）</li>
+        <li>BI 数据大屏（股东视角）</li>
+        <li>PC 管理端（运维 / 配置）</li>
+        <li>手机 APP（iOS / Android）</li>
+      </ul>
+      <div class="info-badges">
+        <span class="info-badge">超级管理员：全部项目数据</span>
+        <span class="info-badge">股东：所辖项目数据</span>
+        <span class="info-badge">数据隔离：DB 标签 + API 校验</span>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <h3><span class="indicator" style="background:var(--linkage);"></span>系统间联动关系</h3>
+      <div class="linkage-item">
+        <div class="link-title" style="color:var(--sub-loc);">人员管控闭环</div>
+        <div class="link-desc">人脸门禁 <span class="arrow">→</span> 人员定位 <span class="arrow">→</span> 视频监控复核</div>
+      </div>
+      <div class="linkage-item">
+        <div class="link-title" style="color:var(--sub-door);">车辆管控闭环</div>
+        <div class="link-desc">道闸管理 <span class="arrow">→</span> 车辆定位 <span class="arrow">→</span> 视频监控复核</div>
+      </div>
+      <div class="linkage-item">
+        <div class="link-title" style="color:var(--sub-fire);">火灾防控闭环</div>
+        <div class="link-desc">热成像云台 <span class="arrow">→</span> 视频复核 <span class="arrow">→</span> 平台联动消防</div>
+      </div>
+      <div class="linkage-item">
+        <div class="link-title" style="color:var(--core);">生产管理闭环</div>
+        <div class="link-desc">MES / ERP <span class="arrow">→</span> 综合管理平台 <span class="arrow">→</span> BI 大屏 / APP</div>
+      </div>
+      <div class="linkage-item">
+        <div class="link-title" style="color:var(--security);">消防联动</div>
+        <div class="link-desc">报警 <span class="arrow">→</span> 应急广播 (中老双语) <span class="arrow">→</span> 喷淋 <span class="arrow">→</span> 人员统计</div>
+      </div>
+      <div class="linkage-item">
+        <div class="link-title" style="color:var(--sub-fence);">安防联动</div>
+        <div class="link-desc">电子围栏报警 <span class="arrow">→</span> 监控弹屏 <span class="arrow">→</span> 声光 <span class="arrow">→</span> 广播威慑</div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <h3><span class="indicator" style="background:#64748b;"></span>图例说明</h3>
+      <div class="info-badges">
+        <span class="info-badge" style="border-color:rgba(96,165,250,0.4);color:var(--core);">全光网 GPON/XGS-PON</span>
+        <span class="info-badge" style="border-color:rgba(74,222,128,0.4);color:var(--sub-cam);">四网逻辑隔离</span>
+        <span class="info-badge" style="border-color:rgba(251,146,60,0.4);color:var(--onu);">千兆 + WiFi 6</span>
+        <span class="info-badge" style="border-color:rgba(192,132,252,0.4);color:var(--sub-loc);">4G/5G + LoRa</span>
+        <span class="info-badge" style="border-color:rgba(248,113,113,0.4);color:var(--security);">深信服纵深防御</span>
+        <span class="info-badge" style="border-color:rgba(167,139,250,0.4);color:var(--cloud);">云端 API 服务</span>
+        <span class="info-badge" style="border-color:rgba(192,132,252,0.4);color:var(--third);">第三方系统对接</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ Detail Modal ═══ -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <div class="modal-type" id="modalType">设备详情</div>
+    <div class="modal-title" id="modalTitle">---</div>
+    <div class="modal-body" id="modalBody">---</div>
+    <div class="modal-footer">
+      <button class="modal-btn" onclick="closeModal()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+const db = {
+  cloud1:{title:'云值守火情研判',type:'云端服务 · Cloud',body:'基于 AI 图像识别技术，对热成像云台和视频监控画面进行实时分析，自动检测火情并推送告警。支持烟雾识别、火焰识别、温度异常检测，误报率低于 0.1%。与应急广播系统联动，触发后自动播放中老双语疏散广播。'},
+  cloud2:{title:'远程运维管理平台',type:'云端服务 · Cloud',body:'集中管理所有园区智能化设备的云端平台。支持设备状态监控、远程配置、固件 OTA 升级、日志采集分析、告警策略管理。提供多租户隔离，支持角色-项目-数据三维权限模型。'},
+  cloud3:{title:'移动 APP 后端服务',type:'云端服务 · Cloud',body:'为 iOS / Android 移动端提供 API 网关服务，包括推送通知、实时告警推送、视频预览、门禁远程控制等功能。采用 HTTPS + JSON 通信，支持 Token 认证和 SSL 双向验证。'},
+  sec1:{title:'NGAF 下一代防火墙',type:'网络安全 · 深信服',body:'深信服下一代防火墙，提供 L7 应用识别、入侵防御 (IPS)、防病毒 (AV)、Web 应用防护 (WAF) 等综合安全能力。支持四网 VLAN 隔离策略，对跨境访问实施深度包检测。'},
+  sec2:{title:'AC 上网行为管理',type:'网络安全 · 深信服',body:'深信服上网行为管理设备，实现流量审计、应用管控、URL 过滤、带宽管理等功能。按用户角色和 VLAN 网段制定差异化策略，内网和办公网实行白名单管控，访客外网做带宽限制。'},
+  sec3:{title:'SSL / IPSec VPN 跨境加密',type:'网络安全 · 深信服',body:'为中老跨境管理提供安全加密通道。支持 SSL VPN（移动端接入）和 IPSec VPN（站点到站点），加密算法 AES-256-GCM，支持多因子认证。确保股东和管理人员从中国远程安全访问园区系统。'},
+  core1:{title:'核心交换机',type:'核心网络 · L3 交换',body:'园区核心三层交换机，提供万兆上行接口连接 OLT 和服务器集群。支持 PoE++（60W/端口）为前端设备供电，支持 VLAN 间路由、ACL 访问控制、QoS 服务质量保障。采用 VRRP 热备，主备切换时间 < 50ms。'},
+  core2:{title:'OLT 光线路终端',type:'核心网络 · GPON/XGS-PON',body:'GPON / XGS-PON 光线路终端，推荐华为 EA5800 系列或锐捷 RG-IMC 系列。单 PON 口支持最大 1:128 分光比，下行速率 2.5G / 10G（GPON / XGS-PON），传输距离最大 40 km。支持 Type B 双归属保护。'},
+  odn1:{title:'1:4 分光器（车间区）',type:'ODN · 无源光分配',body:'部署于车间区域的无源分光器，1:4 分光比。车间区域带宽需求高，低分光比保障每个 ONU 获得更高带宽。采用 PLC 平面光波导技术，插入损耗 ≤ 7.2 dB。'},
+  odn2:{title:'1:8 分光器（仓库/周界）',type:'ODN · 无源光分配',body:'部署于仓库和周界区域，1:8 分光比。中等密度场景，平衡覆盖范围与单终端带宽。采用 PLC 技术，插入损耗 ≤ 10.5 dB，工作温度 -40 ~ 85℃。'},
+  odn3:{title:'1:16 分光器（办公楼）',type:'ODN · 无源光分配',body:'部署于办公楼区域，1:16 分光比。办公楼终端密度高但单终端带宽需求适中。采用 PLC 技术，插入损耗 ≤ 13.5 dB。配合室内 ONU 实现 WiFi 6 全覆盖。'},
+  onu1:{title:'室内 ONU（桌面型 / WiFi 6）',type:'ONU 接入 · 室内型',body:'桌面型光网络单元，内置 WiFi 6（802.11ax）无线接入点。提供 4 个千兆 LAN 口，支持 VLAN 划分和 QoS。部署于办公楼和宿舍区，提供高速内网和办公网接入。'},
+  onu2:{title:'工业 ONU（室外 PoE++ / IP67）',type:'ONU 接入 · 工业级',body:'室外工业级 ONU，IP67 防护等级，工作温度 -40 ~ 75℃。支持 PoE++（60W）对外供电，可直接为室外摄像头和无线 AP 供电。部署于周界、出入口等室外场景。'},
+  onu3:{title:'车间高密 ONU（8GE / PoE+）',type:'ONU 接入 · 高密度',body:'车间专用高密度 ONU，提供 8 个千兆 GE 端口，支持 PoE+（30W）。DIN 导轨安装，适应工业环境。连接车间内的监控摄像头、人脸门禁、道闸控制器等设备。'},
+  onu4:{title:'4G / 5G CPE（采伐区无线回传）',type:'ONU 接入 · 无线回传',body:'部署于采伐区等光纤无法覆盖的远端区域。支持 4G / 5G 蜂窝网络回传，内置 LoRa 物联专网网关，可接入各类低功耗传感器。为车辆定位、人员定位、环境监测等提供网络连接。'},
+  cam1:{title:'高清枪机',type:'视频监控 · 子系统一',body:'固定式高清网络摄像机，分辨率 200 万 / 400 万像素，支持 H.265 编码，红外夜视 30–50m，IP67 防护。部署于园区主干道、周界围墙。'},
+  cam2:{title:'高清半球',type:'视频监控 · 子系统一',body:'半球型高清网络摄像机，支持宽动态 (WDR)，内置拾音器。部署于办公楼大厅、走廊、电梯厅等室内场景。'},
+  cam3:{title:'智能警戒摄像机',type:'视频监控 · 子系统一',body:'内置 AI 芯片，支持越界检测、区域入侵、徘徊检测。异常行为自动联动声光报警和监控中心弹屏。部署于周界、仓库等重点区域。'},
+  cam4:{title:'热成像双光谱云台',type:'视频监控 · 子系统一',body:'可见光 + 热成像双通道云台。热成像支持火点检测和温度异常告警，可见光用于画面复核。360° 旋转，预置位巡航，部署于制高点。'},
+  cam5:{title:'热成像球机',type:'视频监控 · 子系统一',body:'一体化热成像网络球机，测温范围 -20 ~ 550℃，精度 ±2℃。发现异常温度自动上报，与消防联动平台对接，部署于木材加工车间。'},
+  cam6:{title:'人脸抓拍机',type:'视频监控 · 子系统一',body:'专业人脸抓拍摄像机，同时抓拍 30+ 张人脸，抓拍率 ≥ 99%。内置深度学习算法，支持人脸属性分析（年龄 / 性别 / 口罩检测）。'},
+  cam7:{title:'AI 智能分析服务器',type:'视频监控 · 子系统一',body:'GPU 算力服务器，运行深度学习视频分析算法。支持烟火检测、安全帽检测等 20+ 种 AI 算法。单台支持 128 路实时分析，GPU 型号 NVIDIA T4 / A10。'},
+  cam8:{title:'NVR 网络录像机 (RAID)',type:'视频监控 · 子系统一',body:'支持 RAID 5/6 磁盘阵列，单台 64 路接入，存储 ≥ 90 天。支持录像回放、智能检索、异地备份，与 ISC 视频管理平台对接。'},
+  loc1:{title:'4G 定位卡 (GPS / 北斗 + Cat.1)',type:'人员定位 · 子系统二',body:'可穿戴式定位终端，GPS + 北斗双模，精度 3–5m。内置 Cat.1 4G 模块实时上报位置，续航 72h（1min 间隔）。支持 SOS 一键报警和电子围栏告警。'},
+  loc2:{title:'SOS 一键报警终端',type:'人员定位 · 子系统二',body:'长按 SOS 键 3 秒触发报警，平台自动弹窗显示报警人员位置和身份信息，联动附近监控弹出画面，应急广播播放疏散指引。'},
+  loc3:{title:'第三方定位管理平台',type:'人员定位 · 子系统二',body:'人员定位数据汇聚和管理平台，提供实时位置展示、历史轨迹回放、电子围栏管理、考勤统计。通过 API 与综合管理平台对接。'},
+  loc4:{title:'GIS 网格划分管理',type:'人员定位 · 子系统二',body:'基于 GIS 将园区划分为管理网格，可设定人员数量上限和工种要求，超出或不足时自动告警。支持网格内人员统计和快速定位。'},
+  door1:{title:'人脸识别门禁一体机',type:'人脸门禁 · 子系统三',body:'7 寸触控屏人脸识别终端，5 万人脸库，识别速度 < 0.3 秒。支持活体检测（防照片 / 视频攻击），支持口罩识别，韦根 + RS-485 接口。'},
+  door2:{title:'闸机伴侣 (三辊闸 / 翼闸)',type:'人脸门禁 · 子系统三',body:'通行速度 30–40 人/分钟，支持消防联动紧急开启。部署于园区主入口和车间入口。'},
+  door3:{title:'门禁控制器 (离线 1 万条)',type:'人脸门禁 · 子系统三',body:'单门 / 双门门禁控制器，离线存储 1 万条通行记录。TCP/IP + RS-485 通信，断电数据不丢失。支持首卡开门、多卡开门、反潜回。'},
+  door4:{title:'访客预约管理系统',type:'人脸门禁 · 子系统三',body:'支持微信小程序预约、现场登记、人脸录入、临时权限下发。访客权限默认 8 小时有效，过期自动失效。支持黑名单管理和公安比对。'},
+  gate1:{title:'车牌识别一体机',type:'道闸管理 · 子系统四',body:'集成高清摄像头和车牌识别算法。支持蓝牌 / 黄牌 / 新能源车牌，识别率 ≥ 99.5%。内置补光灯，支持 4G 通信。'},
+  gate2:{title:'智能道闸',type:'道闸管理 · 子系统四',body:'直杆 / 栅栏杆智能道闸，抬杆 1.5–3 秒可调。支持遥控、车牌联动、消防联动。内置地感线圈和红外防砸保护。'},
+  gate3:{title:'出入口控制终端',type:'道闸管理 · 子系统四',body:'工业级嵌入式控制终端，负责识别结果处理、道闸控制和通行记录存储。支持白名单 / 黑名单，可存 10 万条记录，支持断网离线运行。'},
+  car1:{title:'GPS / 北斗车载终端',type:'车辆定位 · 子系统五',body:'车载定位终端，GPS + 北斗双模定位。内置 4G 模块实时上报位置、速度、方向。支持 ACC 检测、断油断电远程控制、超速告警、电子围栏。'},
+  car2:{title:'电子围栏超速告警',type:'车辆定位 · 子系统五',body:'在 GIS 地图上划定电子围栏区域和限速规则。进出围栏自动记录，超速实时告警。采伐区运输车辆全程监控。'},
+  fire1:{title:'热成像重载云台 (3–5 km)',type:'火灾监控 · 子系统六',body:'远距离热成像云台，探测距离 3–5 km。360° 连续旋转，预置位巡航。内置火点检测和烟雾识别算法，部署于园区最高点。'},
+  fire2:{title:'热成像中载云台 (1–2 km)',type:'火灾监控 · 子系统六',body:'中距离热成像云台，用于园区内部重点防火区域精细化监控。支持测温模式和火点检测模式切换。'},
+  fire3:{title:'烟感探测器',type:'火灾监控 · 子系统六',body:'光电式烟感探测器，灵敏度 0.1–0.3 dB/m。温度补偿和防虫网设计，二总线通信，接入消防报警主机。'},
+  fire4:{title:'弧光探测器',type:'火灾监控 · 子系统六',body:'用于配电柜和电气设备弧光检测，响应时间 < 1ms。与断路器联动，检测到弧光自动切断电源，预防电气火灾。'},
+  fence1:{title:'6 线制双防区脉冲主机',type:'电子围栏 · 子系统七',body:'高压脉冲电子围栏主机，6 线制，每台管理 2 个防区。输出电压 5–10kV 可调，脉冲能量 ≤ 5J，符合国家安全标准。短路 / 断路报警联动监控。'},
+  fence2:{title:'前端杆件 / 合金导线',type:'电子围栏 · 子系统七',body:'包括终端杆、承力杆、中间杆、合金导线、高压绝缘子等。铝镁合金导线，不锈钢杆件，适应老挝热带气候。'},
+  bcast1:{title:'网络广播主机 (中老双语)',type:'应急广播 · 子系统八',body:'IP 网络广播主机，支持中老双语预录语音。支持分区广播、全区广播、定时广播。与消防报警和电子围栏联动。'},
+  bcast2:{title:'室外音柱 / 室内音箱',type:'应急广播 · 子系统八',body:'室外防水音柱 (IP66)，30–60W，覆盖 50–100m。室内吸顶音箱 6–10W。全部 POE 供电，IP 网络接入，独立控制。'},
+  energy1:{title:'智能电表 / 智能水表',type:'能源监测 · 子系统九',body:'RS-485 / Modbus 通信智能电表和水表。电表支持三相电压 / 电流 / 功率因数 / 电能计量，精度 0.5S 级。水表超声波计量，精度 R250。'},
+  energy2:{title:'气象站 / 水位传感器',type:'环境监测 · 子系统九',body:'六要素气象站：温度、湿度、气压、风速、风向、雨量。水位传感器采用雷达液位计，精度 ±3mm，监测园区排水和河流水位。'},
+  energy3:{title:'倾角传感器',type:'环境监测 · 子系统九',body:'高精度双轴倾角传感器，分辨率 0.001°，精度 ±0.01°。监测边坡、挡墙和建筑物倾斜。LoRa 无线通信，电池续航 3 年。'},
+  grid1:{title:'500m × 500m 网格划分',type:'网格化管理 · 子系统十',body:'将采伐区按 500m × 500m 标准网格划分，每个网格作为独立作业单元。设定采伐产量上限，分配作业人员和车辆，GIS 可视化展示。'},
+  grid2:{title:'产量上限管控',type:'网格化管理 · 子系统十',body:'每个网格按日 / 周 / 月设定采伐量上限，达到上限自动告警并限制作业。车辆称重数据 + 人员定位数据交叉验证，超额需审批解锁。'},
+  oa1:{title:'OA / 财务 / 人力 / 考勤 / 薪资',type:'办公协同 · 子系统十一',body:'二期建设的统一办公协同门户，集成 OA 审批流、财务管理、人力资源管理、智能考勤（对接人脸门禁和人员定位）、薪资计算。LDAP 统一认证，中老双语界面。'},
+  oa2:{title:'LDAP 单点登录 · 中老双语',type:'办公协同 · 子系统十一',body:'基于 LDAP 的统一身份认证平台，实现所有智能化子系统（iPark / ISC / 门禁 / OA 等）的单点登录。支持角色-项目-数据三维权限模型，中文和老挝语一键切换。'}
+};
+
+function showDetail(id) {
+  const d = db[id]; if (!d) return;
+  document.getElementById('modalType').textContent = d.type;
+  document.getElementById('modalTitle').textContent = d.title;
+  document.getElementById('modalBody').textContent = d.body;
+  document.getElementById('modalOverlay').classList.add('show');
+  const label = document.getElementById('activeNodeLabel');
+  label.textContent = d.title;
+  document.getElementById('headerStatus').classList.add('has-focus');
+  document.querySelectorAll('.node.active').forEach(n => n.classList.remove('active'));
+  const el = document.querySelector(`[onclick="showDetail('${id}')"]`);
+  if (el) { el.classList.add('active'); el.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+  document.getElementById('activeNodeLabel').textContent = '点击节点查看详情';
+  document.getElementById('headerStatus').classList.remove('has-focus');
+  document.querySelectorAll('.node.active').forEach(n => n.classList.remove('active'));
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// Ripple effect on node click
+document.querySelectorAll('.node').forEach(node => {
+  node.addEventListener('click', function(e) {
+    const ripple = document.createElement('span');
+    const rect = this.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    ripple.style.cssText = `
+      position:absolute;width:${size}px;height:${size}px;
+      left:${e.clientX - rect.left - size/2}px;top:${e.clientY - rect.top - size/2}px;
+      border-radius:50%;background:rgba(255,255,255,0.08);
+      transform:scale(0);animation:ripple 0.6s ease-out;pointer-events:none;z-index:0;
+    `;
+    this.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 600);
+  });
+});
+
+// Inject keyframe for ripple
+const style = document.createElement('style');
+style.textContent = '@keyframes ripple{to{transform:scale(3);opacity:0;}}';
+document.head.appendChild(style);
+</script>
+</body>
+</html>
