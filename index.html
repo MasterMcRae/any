@@ -3,1025 +3,558 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>老挝安品工业园智能化系统 — 拓扑架构图</title>
+<title>ParkMatrix 工业园一体化管控平台</title>
+<!-- Chart.js loaded async below, not blocking page render -->
 <style>
-:root {
-  --bg-deep: #070d14;
-  --bg-primary: #0b1521;
-  --bg-elevated: #111d2b;
-  --bg-glass: rgba(17,29,43,0.72);
-  --border-subtle: rgba(255,255,255,0.06);
-  --border-default: rgba(255,255,255,0.10);
-  --border-accent: rgba(255,255,255,0.16);
-  --text-primary: #e8edf2;
-  --text-secondary: #9aafc4;
-  --text-muted: #5a6e82;
-
-  --cloud:     #a78bfa;
-  --cloud-bg:  rgba(167,139,250,0.10);
-  --cloud-bd:  rgba(167,139,250,0.30);
-  --security:  #f87171;
-  --security-bg: rgba(248,113,113,0.10);
-  --security-bd: rgba(248,113,113,0.30);
-  --core:      #60a5fa;
-  --core-bg:   rgba(96,165,250,0.10);
-  --core-bd:   rgba(96,165,250,0.30);
-  --odn:       #2dd4bf;
-  --odn-bg:    rgba(45,212,191,0.10);
-  --odn-bd:    rgba(45,212,191,0.30);
-  --onu:       #fb923c;
-  --onu-bg:    rgba(251,146,60,0.10);
-  --onu-bd:    rgba(251,146,60,0.30);
-  --server:    #818cf8;
-  --server-bg: rgba(129,140,248,0.10);
-  --third:     #c084fc;
-  --third-bg:  rgba(192,132,252,0.10);
-  --terminal:  #22d3ee;
-  --terminal-bg: rgba(34,211,238,0.10);
-  --linkage:   #94a3b8;
-
-  --sub-cam:    #4ade80;
-  --sub-loc:    #c084fc;
-  --sub-door:   #fb923c;
-  --sub-gate:   #f87171;
-  --sub-car:    #2dd4bf;
-  --sub-fire:   #f87171;
-  --sub-fence:  #64748b;
-  --sub-bcast:  #4ade80;
-  --sub-energy: #facc15;
-  --sub-grid:   #a8a29e;
-  --sub-oa:     #60a5fa;
-
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.04);
-  --shadow-lg: 0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.06);
-  --shadow-glow: 0 0 20px rgba(96,165,250,0.15);
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-* { margin:0; padding:0; box-sizing:border-box; }
-html { font-size: 15px; scroll-behavior: smooth; }
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif;
-  background: var(--bg-deep);
-  background-image:
-    radial-gradient(ellipse at 20% 0%, rgba(96,165,250,0.04) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 100%, rgba(167,139,250,0.04) 0%, transparent 60%);
-  color: var(--text-primary);
-  line-height: 1.55;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* ─── Header ─── */
-.header {
-  background: var(--bg-glass);
-  backdrop-filter: blur(20px) saturate(140%);
-  -webkit-backdrop-filter: blur(20px) saturate(140%);
-  border-bottom: 1px solid var(--border-default);
-  padding: 14px 28px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-.header-left { display:flex; flex-direction:column; gap:4px; }
-.header h1 {
-  font-size: 1.2rem;
-  font-weight: 700;
-  letter-spacing: -0.3px;
-  background: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.header-tags { display: flex; gap: 8px; flex-wrap: wrap; }
-.header-tag {
-  font-size: 0.65rem;
-  font-weight: 500;
-  padding: 4px 12px;
-  border-radius: 20px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
-  letter-spacing: 0.3px;
-  transition: all 0.2s var(--ease-out);
-}
-.header-tag:hover { border-color: var(--border-accent); color: var(--text-primary); }
-.header-status {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 14px;
-  border-radius: 20px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--border-subtle);
-  transition: all 0.25s var(--ease-out);
-}
-.header-status.has-focus {
-  border-color: var(--core-bd);
-  color: var(--core);
-}
-.status-dot {
-  width: 7px; height: 7px; border-radius: 50%;
-  background: var(--text-muted);
-  transition: all 0.3s var(--ease-out);
-}
-.header-status.has-focus .status-dot {
-  background: var(--core);
-  box-shadow: 0 0 10px var(--core);
-}
-
-/* ─── Main layout ─── */
-.main {
-  display: grid;
-  grid-template-columns: 1fr 440px;
-  gap: 0;
-  min-height: calc(100vh - 76px);
-}
-@media (max-width: 1200px) { .main { grid-template-columns: 1fr; } }
-
-/* ─── Topology panel ─── */
-.topo-panel {
-  padding: 28px 36px 48px;
-  overflow-y: auto;
-  max-height: calc(100vh - 76px);
-}
-.topo-panel::-webkit-scrollbar { width: 5px; }
-.topo-panel::-webkit-scrollbar-track { background: transparent; }
-.topo-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
-.topo-panel::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.14); }
-
-/* Layer styling */
-.layer { margin-bottom: 16px; }
-
-.layer-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 16px;
-  margin-bottom: 14px;
-  border-radius: var(--radius-md);
-  background: rgba(255,255,255,0.02);
-  border: 1px solid var(--border-subtle);
-  transition: all 0.3s var(--ease-out);
-}
-.layer-header:hover { background: rgba(255,255,255,0.04); }
-.layer-header .layer-stripe {
-  width: 4px; height: 28px; border-radius: 2px; flex-shrink: 0;
-  transition: all 0.3s var(--ease-out);
-}
-.layer-header:hover .layer-stripe {
-  width: 6px;
-}
-.layer-label {
-  font-size: 0.82rem;
-  font-weight: 650;
-  letter-spacing: 0.2px;
-  flex: 1;
-}
-.layer-count {
-  font-size: 0.65rem;
-  color: var(--text-muted);
-  font-weight: 500;
-  padding: 3px 10px;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid var(--border-subtle);
-}
-
-/* Nodes grid */
-.nodes {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
-  gap: 10px;
-  padding-left: 20px;
-  padding-right: 4px;
-  position: relative;
-}
-.nodes::before {
-  content: '';
-  position: absolute;
-  left: 8px;
-  top: 8px;
-  bottom: 8px;
-  width: 1.5px;
-  border-radius: 1px;
-  background: linear-gradient(180deg,
-    var(--border-accent) 0%,
-    var(--border-subtle) 50%,
-    var(--border-accent) 100%);
-}
-
-/* ─── Node card ─── */
-.node {
-  background: var(--bg-glass);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 14px 16px;
-  cursor: pointer;
-  transition: all 0.3s var(--ease-out);
-  position: relative;
-  overflow: hidden;
-}
-.node::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: var(--radius-md);
-  opacity: 0;
-  transition: opacity 0.3s var(--ease-out);
-  pointer-events: none;
-  z-index: 0;
-}
-.node:hover {
-  transform: translateY(-3px) scale(1.015);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--border-accent);
-}
-.node:hover::after {
-  opacity: 1;
-}
-.node.active {
-  border-color: var(--core);
-  box-shadow: var(--shadow-lg), 0 0 0 1px var(--core), 0 0 30px rgba(96,165,250,0.12);
-  transform: translateY(-2px);
-}
-.node:active { transform: translateY(-1px) scale(0.99); transition: all 0.1s var(--ease-out); }
-
-.node > * { position: relative; z-index: 1; }
-
-.node .node-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 6px; }
-.node .node-icon {
-  font-size: 1.15rem;
-  line-height: 1;
-  flex-shrink: 0;
-  width: 28px; height: 28px;
-  display: flex; align-items: center; justify-content: center;
-  border-radius: var(--radius-sm);
-  background: rgba(255,255,255,0.05);
-}
-.node .node-name {
-  font-size: 0.78rem;
-  font-weight: 600;
-  line-height: 1.3;
-  color: var(--text-primary);
-}
-.node .node-desc {
-  font-size: 0.66rem;
-  color: var(--text-muted);
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.node .connector-dot {
-  position: absolute;
-  left: -16px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--border-default);
-  z-index: 3;
-  transition: all 0.3s var(--ease-out);
-}
-.node:hover .connector-dot {
-  background: var(--text-secondary);
-  box-shadow: 0 0 8px rgba(255,255,255,0.2);
-}
-.node .connector-dot.active-dot {
-  animation: dotPulse 2.5s ease-in-out infinite;
-}
-@keyframes dotPulse {
-  0%, 100% { box-shadow: 0 0 4px var(--core); }
-  50% { box-shadow: 0 0 18px var(--core), 0 0 30px rgba(96,165,250,0.3); }
-}
-
-/* Color accents per layer */
-.node.cloud { border-left: 3px solid var(--cloud); }
-.node.cloud::after { background: radial-gradient(circle at 0% 50%, rgba(167,139,250,0.08), transparent 60%); }
-.node.cloud .connector-dot.active-dot { background: var(--cloud); animation-name: dotPulseCloud; }
-@keyframes dotPulseCloud { 0%,100% {box-shadow:0 0 4px var(--cloud);} 50%{box-shadow:0 0 18px var(--cloud),0 0 30px rgba(167,139,250,0.3);} }
-
-.node.security { border-left: 3px solid var(--security); }
-.node.security::after { background: radial-gradient(circle at 0% 50%, rgba(248,113,113,0.08), transparent 60%); }
-.node.security .connector-dot.active-dot { background: var(--security); animation-name: dotPulseSecurity; }
-@keyframes dotPulseSecurity { 0%,100% {box-shadow:0 0 4px var(--security);} 50%{box-shadow:0 0 18px var(--security),0 0 30px rgba(248,113,113,0.3);} }
-
-.node.core { border-left: 3px solid var(--core); }
-.node.core::after { background: radial-gradient(circle at 0% 50%, rgba(96,165,250,0.08), transparent 60%); }
-.node.odn { border-left: 3px solid var(--odn); }
-.node.odn::after { background: radial-gradient(circle at 0% 50%, rgba(45,212,191,0.08), transparent 60%); }
-.node.odn .connector-dot.active-dot { background: var(--odn); animation-name: dotPulseOdn; }
-@keyframes dotPulseOdn { 0%,100% {box-shadow:0 0 4px var(--odn);} 50%{box-shadow:0 0 18px var(--odn),0 0 30px rgba(45,212,191,0.3);} }
-
-.node.onu { border-left: 3px solid var(--onu); }
-.node.onu::after { background: radial-gradient(circle at 0% 50%, rgba(251,146,60,0.08), transparent 60%); }
-.node.onu .connector-dot.active-dot { background: var(--onu); animation-name: dotPulseOnu; }
-@keyframes dotPulseOnu { 0%,100% {box-shadow:0 0 4px var(--onu);} 50%{box-shadow:0 0 18px var(--onu),0 0 30px rgba(251,146,60,0.3);} }
-
-.node.sub-cam { border-left: 3px solid var(--sub-cam); }
-.node.sub-cam::after { background: radial-gradient(circle at 0% 50%, rgba(74,222,128,0.08), transparent 60%); }
-.node.sub-loc { border-left: 3px solid var(--sub-loc); }
-.node.sub-loc::after { background: radial-gradient(circle at 0% 50%, rgba(192,132,252,0.08), transparent 60%); }
-.node.sub-door { border-left: 3px solid var(--sub-door); }
-.node.sub-door::after { background: radial-gradient(circle at 0% 50%, rgba(251,146,60,0.08), transparent 60%); }
-.node.sub-gate { border-left: 3px solid var(--sub-gate); }
-.node.sub-gate::after { background: radial-gradient(circle at 0% 50%, rgba(248,113,113,0.08), transparent 60%); }
-.node.sub-car { border-left: 3px solid var(--sub-car); }
-.node.sub-car::after { background: radial-gradient(circle at 0% 50%, rgba(45,212,191,0.08), transparent 60%); }
-.node.sub-fire { border-left: 3px solid var(--sub-fire); }
-.node.sub-fire::after { background: radial-gradient(circle at 0% 50%, rgba(248,113,113,0.08), transparent 60%); }
-.node.sub-fence { border-left: 3px solid var(--sub-fence); }
-.node.sub-fence::after { background: radial-gradient(circle at 0% 50%, rgba(100,116,139,0.08), transparent 60%); }
-.node.sub-bcast { border-left: 3px solid var(--sub-bcast); }
-.node.sub-bcast::after { background: radial-gradient(circle at 0% 50%, rgba(74,222,128,0.08), transparent 60%); }
-.node.sub-energy { border-left: 3px solid var(--sub-energy); }
-.node.sub-energy::after { background: radial-gradient(circle at 0% 50%, rgba(250,204,21,0.08), transparent 60%); }
-.node.sub-grid { border-left: 3px solid var(--sub-grid); }
-.node.sub-grid::after { background: radial-gradient(circle at 0% 50%, rgba(168,162,158,0.08), transparent 60%); }
-.node.sub-oa { border-left: 3px solid var(--sub-oa); }
-.node.sub-oa::after { background: radial-gradient(circle at 0% 50%, rgba(96,165,250,0.08), transparent 60%); }
-
-/* Subsystem layout */
-.sub-section { margin-bottom: 14px; }
-
-.sub-title {
-  font-size: 0.76rem;
-  font-weight: 700;
-  padding: 8px 14px;
-  margin-bottom: 10px;
-  border-radius: var(--radius-sm);
-  background: rgba(255,255,255,0.025);
-  border: 1px solid var(--border-subtle);
-  border-left: 4px solid;
-  color: var(--text-primary);
-  letter-spacing: 0.2px;
-  transition: all 0.25s var(--ease-out);
-}
-.sub-title:hover { background: rgba(255,255,255,0.04); }
-
-.sub-nodes {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
-  gap: 8px;
-  padding-left: 20px;
-}
-.sub-nodes .node {
-  padding: 10px 14px;
-  font-size: 0.72rem;
-}
-.sub-nodes .node .node-name {
-  font-size: 0.72rem;
-  font-weight: 550;
-}
-
-/* VLAN badges row */
-.vlan-row {
-  display: flex; gap: 8px; flex-wrap: wrap;
-  padding: 6px 0 6px 20px; margin-top: 2px;
-}
-.vlan-chip {
-  font-size: 0.62rem; font-weight: 500;
-  padding: 4px 12px; border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(255,255,255,0.03);
-  color: var(--text-secondary);
-  letter-spacing: 0.3px;
-  transition: all 0.2s var(--ease-out);
-}
-.vlan-chip:hover { border-color: rgba(255,255,255,0.18); }
-
-/* Uplink label-between layers */
-.uplink-hint {
-  text-align: center;
-  padding: 5px 0 3px 20px;
-  font-size: 0.62rem;
-  color: var(--text-muted);
-  letter-spacing: 0.5px;
-}
-
-/* ─── Side panel ─── */
-.side-panel {
-  background: var(--bg-elevated);
-  border-left: 1px solid var(--border-default);
-  padding: 24px 20px 40px;
-  overflow-y: auto;
-  max-height: calc(100vh - 76px);
-}
-.side-panel::-webkit-scrollbar { width: 5px; }
-.side-panel::-webkit-scrollbar-track { background: transparent; }
-.side-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
-.side-panel::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.14); }
-
-.panel-section {
-  background: var(--bg-glass);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  padding: 18px 20px;
-  margin-bottom: 16px;
-  transition: all 0.25s var(--ease-out);
-}
-.panel-section:hover {
-  border-color: var(--border-default);
-  box-shadow: var(--shadow-sm);
-}
-.panel-section h3 {
-  font-size: 0.78rem;
-  font-weight: 650;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  letter-spacing: 0.2px;
-  color: var(--text-primary);
-}
-.panel-section h3 .indicator {
-  width: 8px; height: 8px; border-radius: 50%;
-  box-shadow: 0 0 8px currentColor;
-}
-
-.detail-list {
-  list-style: none;
-  font-size: 0.7rem;
-}
-.detail-list li {
-  padding: 6px 0;
-  border-bottom: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  transition: all 0.2s var(--ease-out);
-}
-.detail-list li:hover { color: var(--text-primary); }
-.detail-list li:last-child { border-bottom: none; }
-.detail-list li::before {
-  content: '';
-  width: 5px; height: 5px; border-radius: 50%;
-  background: currentColor;
-  opacity: 0.5;
-  margin-top: 7px;
-  flex-shrink: 0;
-}
-
-.linkage-item {
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border-subtle);
-  transition: all 0.2s var(--ease-out);
-}
-.linkage-item:hover { padding-left: 4px; }
-.linkage-item:last-child { border-bottom: none; }
-.linkage-item .link-title {
-  font-size: 0.71rem;
-  font-weight: 650;
-  margin-bottom: 3px;
-  letter-spacing: 0.2px;
-}
-.linkage-item .link-desc {
-  font-size: 0.66rem;
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-.link-desc .arrow { color: var(--text-muted); opacity: 0.5; }
-
-.info-badges {
-  display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px;
-}
-.info-badge {
-  font-size: 0.6rem; font-weight: 500;
-  padding: 4px 10px; border-radius: 12px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
-  letter-spacing: 0.2px;
-  transition: all 0.2s var(--ease-out);
-}
-.info-badge:hover { border-color: var(--border-accent); }
-
-/* ─── Detail modal ─── */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.65);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  z-index: 999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s var(--ease-out);
-}
-.modal-overlay.show {
-  opacity: 1;
-  pointer-events: all;
-}
-.modal-card {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-accent);
-  border-radius: var(--radius-xl);
-  padding: 28px 30px;
-  max-width: 500px;
-  width: 92%;
-  box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06);
-  transform: translateY(16px) scale(0.97);
-  transition: transform 0.35s var(--ease-spring);
-}
-.modal-overlay.show .modal-card {
-  transform: translateY(0) scale(1);
-}
-.modal-card .modal-type {
-  font-size: 0.6rem;
-  font-weight: 600;
-  color: var(--core);
-  text-transform: uppercase;
-  letter-spacing: 1.2px;
-  margin-bottom: 6px;
-}
-.modal-card .modal-title {
-  font-size: 1.05rem;
-  font-weight: 700;
-  margin-bottom: 14px;
-  color: var(--text-primary);
-  letter-spacing: -0.2px;
-}
-.modal-card .modal-body {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  line-height: 1.7;
-}
-.modal-card .modal-footer {
-  margin-top: 20px;
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-}
-.modal-btn {
-  padding: 9px 22px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-default);
-  background: rgba(255,255,255,0.04);
-  color: var(--text-primary);
-  cursor: pointer;
-  font-size: 0.75rem;
-  font-weight: 550;
-  transition: all 0.2s var(--ease-out);
-  letter-spacing: 0.3px;
-}
-.modal-btn:hover {
-  background: rgba(255,255,255,0.08);
-  border-color: var(--border-accent);
-}
-
-/* ─── Responsive ─── */
-@media (max-width: 1200px) {
-  .side-panel {
-    max-height: none;
-    border-left: none;
-    border-top: 1px solid var(--border-default);
-  }
-  .topo-panel { max-height: none; padding: 20px 20px 40px; }
-  .main { grid-template-columns: 1fr; }
-}
-@media (max-width: 640px) {
-  .header { padding: 10px 16px; gap: 8px; }
-  .header h1 { font-size: 1rem; }
-  .nodes { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
-  .sub-nodes { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 6px; }
-  .node { padding: 10px 12px; }
-  .node .node-name { font-size: 0.72rem; }
-  .topo-panel { padding: 14px 12px 30px; }
-  .layer-header { padding: 8px 12px; }
-  .side-panel { padding: 16px 12px 30px; }
-  .panel-section { padding: 14px 16px; }
-  .modal-card { padding: 20px 22px; }
-}
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0e17;--panel:#131a2b;--panel2:#182032;--accent:#00b4d8;--accent2:#0077b6;--warning:#ff6b35;--danger:#e63946;--success:#2ecc71;--info:#00b4d8;--text:#d0d6e0;--text2:#8b95a5;--border:#1e2a3a;--nav-w:220px;--header-h:56px}
+body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+#app{display:flex;height:100vh}
+#nav{width:var(--nav-w);background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;z-index:100}
+.nav-logo{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.nav-logo .icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff;font-weight:bold}
+.nav-logo .title{font-size:14px;font-weight:700;color:#fff;line-height:1.2}
+.nav-logo .sub{font-size:10px;color:var(--text2)}
+.nav-list{flex:1;overflow-y:auto;padding:8px 0}
+.nav-item{padding:10px 20px;cursor:pointer;display:flex;align-items:center;gap:10px;color:var(--text2);font-size:13px;transition:all .2s;border-left:3px solid transparent;margin:2px 0}
+.nav-item:hover{background:var(--panel2);color:var(--text)}
+.nav-item.active{background:rgba(0,180,216,.1);color:var(--accent);border-left-color:var(--accent)}
+.nav-item .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot.green{background:var(--success)}.dot.blue{background:var(--accent)}.dot.orange{background:var(--warning)}.dot.red{background:var(--danger)}.dot.purple{background:#9b5de5}
+.nav-item.highlight{border:1px solid rgba(0,180,216,.25);border-radius:8px;margin:4px 12px;background:rgba(0,180,216,.06)}
+.nav-item.highlight:hover{border-color:var(--accent);box-shadow:0 0 12px rgba(0,180,216,.15)}
+.nav-divider{padding:8px 20px 4px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;opacity:.5}
+.nav-footer{padding:12px 20px;border-top:1px solid var(--border);font-size:9px;color:var(--text2);text-align:center;line-height:1.5}
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#header{height:var(--header-h);background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0}
+#header .page-title{font-size:16px;font-weight:600;color:#fff}
+.header-right{display:flex;align-items:center;gap:16px}
+.live-indicator{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--success)}
+.live-dot{width:8px;height:8px;background:var(--success);border-radius:50%;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+#content{flex:1;overflow-y:auto;padding:20px 24px}
+.page{display:none}.page.active{display:block}
+.card{padding:16px;background:var(--panel);border:1px solid var(--border);border-radius:10px;transition:all .3s}
+.card:hover{border-color:rgba(0,180,216,.3);box-shadow:0 4px 20px rgba(0,180,216,.08)}
+.card-title{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.card-value{font-size:28px;font-weight:700;color:#fff;margin:4px 0}
+.card-sub{font-size:11px;color:var(--text2)}.card-change{font-size:12px}.card-change.up{color:var(--success)}.card-change.down{color:var(--danger)}
+.clickable{cursor:pointer;transition:all .2s}.clickable:hover{transform:translateY(-2px);border-color:var(--accent)!important}
+.kpi-row{display:grid;grid-template-columns:repeat(7,1fr);gap:12px;margin-bottom:16px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+.grid-23{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px}
+.chart-wrap{position:relative;height:220px}.chart-wrap.lg{height:300px}.chart-wrap.sm{height:160px}
+.data-table{width:100%;border-collapse:collapse;font-size:12px}
+.data-table th{background:var(--panel2);color:var(--text2);padding:8px 10px;text-align:left;font-weight:500;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:1}
+.data-table td{padding:8px 10px;border-bottom:1px solid rgba(30,42,58,.5);color:var(--text)}
+.data-table tr:hover td{background:rgba(0,180,216,.05)}
+.status-badge{padding:2px 8px;border-radius:10px;font-size:11px}.status-badge.online{background:rgba(46,204,113,.15);color:var(--success)}.status-badge.offline{background:rgba(230,57,70,.15);color:var(--danger)}.status-badge.warning{background:rgba(255,107,53,.15);color:var(--warning)}
+.level-badge{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}.level-badge.l1{background:rgba(230,57,70,.2);color:var(--danger)}.level-badge.l2{background:rgba(255,107,53,.2);color:var(--warning)}.level-badge.l3{background:rgba(0,180,216,.15);color:var(--info)}
+.alert-scroll{max-height:200px;overflow-y:auto}
+.alert-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-left:2px solid transparent;margin-bottom:4px;background:var(--panel2);border-radius:0 6px 6px 0;font-size:12px;cursor:pointer}.alert-item:hover{background:rgba(0,180,216,.08)}.alert-item.l1{border-left-color:var(--danger)}.alert-item.l2{border-left-color:var(--warning)}.alert-item.l3{border-left-color:var(--info)}.alert-item .time{color:var(--text2);font-size:11px;white-space:nowrap}
+.camera-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.camera-cell{aspect-ratio:16/10;background:var(--panel2);border-radius:8px;border:1px solid var(--border);position:relative;overflow:hidden;cursor:pointer;transition:all .3s}.camera-cell:hover{border-color:var(--accent)}.camera-cell .cam-overlay{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.8));padding:8px 10px}.camera-cell .cam-id{font-size:11px;font-weight:600;color:#fff}.camera-cell .cam-loc{font-size:10px;color:var(--text2)}.camera-cell .cam-status{position:absolute;top:8px;right:8px;width:8px;height:8px;border-radius:50%}.camera-cell .cam-status.live{background:var(--success);box-shadow:0 0 6px var(--success)}.camera-cell .scanner{position:absolute;top:0;left:0;width:100%;height:2px;background:rgba(0,180,216,.4);animation:scan 2s linear infinite}@keyframes scan{0%{top:0}100%{top:100%}}.camera-cell .frame{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:12px}
+.progress-bar{height:6px;background:var(--panel2);border-radius:3px;overflow:hidden;margin:4px 0}.progress-fill{height:100%;border-radius:3px;transition:width .5s}.progress-fill.green{background:var(--success)}.progress-fill.blue{background:var(--accent)}.progress-fill.orange{background:var(--warning)}.progress-fill.red{background:var(--danger)}
+.tag-row{display:flex;flex-wrap:wrap;gap:6px}.tag{padding:4px 10px;border-radius:12px;font-size:11px;background:var(--panel2);border:1px solid var(--border);color:var(--text2)}.tag.active{border-color:var(--accent);color:var(--accent);background:rgba(0,180,216,.1)}
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center}.modal-overlay.show{display:flex}.modal{background:var(--panel);border:1px solid var(--border);border-radius:14px;width:720px;max-height:85vh;overflow-y:auto;padding:24px}.modal h3{color:#fff;margin-bottom:16px;font-size:18px}.modal-close{float:right;background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer}
+.flow-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 0}.flow-node{padding:6px 14px;background:var(--panel2);border:1px solid var(--border);border-radius:16px;font-size:12px;color:var(--text);white-space:nowrap}.flow-arrow{color:var(--accent);font-size:16px}
+.search-box{width:100%;padding:8px 12px;background:var(--panel2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;outline:none;margin-bottom:12px}.search-box:focus{border-color:var(--accent)}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.traffic-light{display:flex;flex-direction:column;gap:4px;align-items:center}.traffic-light .tl{width:16px;height:16px;border-radius:50%;opacity:.3}.traffic-light .tl.on{opacity:1;box-shadow:0 0 10px currentColor}
+.parking-grid{display:grid;grid-template-columns:repeat(20,1fr);gap:3px}.pk-spot{aspect-ratio:1;border-radius:3px;background:var(--success);cursor:pointer}.pk-spot.occupied{background:var(--danger)}.pk-spot.reserved{background:var(--warning)}.pk-spot:hover{transform:scale(1.2);z-index:2}
+/* AR styles */
+.ar-topbar{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:rgba(10,14,23,.8);border-bottom:1px solid rgba(0,230,118,.15);margin-bottom:12px;border-radius:8px 8px 0 0}
+.ar-topbar-title{font-size:14px;font-weight:700;color:#00e676;text-shadow:0 0 12px rgba(0,230,118,.4);letter-spacing:2px}
+.ar-topbar-info{display:flex;gap:20px;font-size:11px;color:var(--text2)}
+.ar-image-wrap{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#0a0f18;border-radius:10px;border:1px solid rgba(0,230,118,.12);min-height:0}
+.ar-full-img{width:100%;height:100%;object-fit:contain;display:block}
+.ar-bottombar{display:flex;justify-content:space-between;padding:6px 16px;margin-top:8px;font-size:10px;color:var(--text2);background:rgba(10,14,23,.6);border-radius:0 0 8px 8px;border-top:1px solid rgba(0,230,118,.1)}
+#page-ar.active{display:flex;flex-direction:column;height:calc(100vh - var(--header-h) - 60px)}
+.heatmap-cell{aspect-ratio:1;border-radius:2px}.heatmap-cell.l0{background:rgba(46,204,113,.1)}.heatmap-cell.l1{background:rgba(46,204,113,.4)}.heatmap-cell.l2{background:rgba(255,209,102,.4)}.heatmap-cell.l3{background:rgba(255,107,53,.5)}.heatmap-cell.l4{background:rgba(230,57,70,.6)}.heatmap-cell.l5{background:rgba(230,57,70,.85)}
+.patrol-route{display:flex;align-items:center;gap:0;flex-wrap:wrap;padding:10px 0}.patrol-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:600;flex-shrink:0}.patrol-dot.done{background:var(--success)}.patrol-dot.pending{background:var(--panel2);border:2px solid var(--border);color:var(--text2)}.patrol-dot.current{background:var(--accent);animation:pulse 1.5s infinite}.patrol-line{width:20px;height:2px;flex-shrink:0}.patrol-line.done{background:var(--success)}.patrol-line.pending{background:var(--border)}
+@media(max-width:1400px){.kpi-row{grid-template-columns:repeat(4,1fr)}.grid-3{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
-
-<header class="header">
-  <div class="header-left">
-    <h1>老挝安品工业园智能化系统 — 拓扑架构图</h1>
-    <div class="header-tags">
-      <span class="header-tag">GPON / XGS-PON 全光网络</span>
-      <span class="header-tag">四网 VLAN 隔离</span>
-      <span class="header-tag">12 大智能化子系统</span>
-      <span class="header-tag">深信服纵深防御</span>
-    </div>
+<div id="app">
+<nav id="nav">
+  <div class="nav-logo"><div class="icon">PM</div><div><div class="title">ParkMatrix</div><div class="sub">工业园一体化管控平台</div></div></div>
+  <div class="nav-list">
+    <div class="nav-divider">园区总览</div>
+    <div class="nav-item active" data-page="dashboard"><span class="dot blue"></span>园区总览</div>
+    <div class="nav-item highlight" data-page="ar" onclick="navTo('ar')"><span class="dot purple"></span>AR实景地图 <span style="font-size:9px;background:var(--accent);color:#000;padding:1px 5px;border-radius:6px;margin-left:auto">NEW</span></div>
+    <div class="nav-divider">视频监控</div>
+    <div class="nav-item" data-page="video"><span class="dot green"></span>视频监控</div>
+    <div class="nav-item" data-page="access"><span class="dot blue"></span>人员管控系统</div>
+    <div class="nav-item" data-page="parking"><span class="dot green"></span>车辆管控系统</div>
+    <div class="nav-item" data-page="fire"><span class="dot red"></span>消防安全管理</div>
+    <div class="nav-divider">人员与车辆</div>
+    <div class="nav-item" data-page="situational"><span class="dot orange"></span>综合数据看板</div>
+    <div class="nav-item" data-page="cardmgmt"><span class="dot blue"></span>人脸门禁管理</div>
+    <div class="nav-item" data-page="patrol"><span class="dot green"></span>网格化巡查</div>
+    <div class="nav-item" data-page="ops"><span class="dot orange"></span>系统联动运维</div>
+    <div class="nav-divider">生产与管理</div>
+    <div class="nav-item" data-page="energy"><span class="dot orange"></span>能耗与环境监测</div>
+    <div class="nav-item" data-page="device"><span class="dot blue"></span>设备台账管理</div>
+    <div class="nav-item" data-page="alert"><span class="dot red"></span>告警中心</div>
   </div>
-  <div class="header-status" id="headerStatus">
-    <span class="status-dot"></span>
-    <span id="activeNodeLabel">点击节点查看详情</span>
-  </div>
-</header>
+  <div class="nav-footer">工业园一体化管控平台</div>
+</nav>
+<div id="main">
+  <div id="header"><span class="page-title" id="pageTitle">园区总览</span><div class="header-right"><div class="live-indicator"><span class="live-dot"></span>实时数据 <span id="liveTime">--</span></div></div></div>
+  <div id="content">
 
-<div class="main">
-
-  <!-- ═══ Left Panel: Topology ═══ -->
-  <div class="topo-panel" id="topoPanel">
-
-    <!-- Layer 1: Cloud -->
-    <div class="layer">
-      <div class="layer-header">
-        <div class="layer-stripe" style="background:var(--cloud);"></div>
-        <span class="layer-label" style="color:var(--cloud);">云端服务层 &nbsp;Cloud</span>
-        <span class="layer-count">3 项服务</span>
+    <div class="page active" id="page-dashboard">
+      <div class="kpi-row">
+        <div class="card clickable" onclick="navTo('dashboard')"><div class="card-title">园区面积</div><div class="card-value">750<span style="font-size:14px;font-weight:400"> 亩</span></div><div class="card-sub">老挝安品竹业智慧园区</div></div>
+        <div class="card clickable" onclick="navTo('access')"><div class="card-title">在园人数</div><div class="card-value" id="kpiPeople">2,000</div><div class="card-change up">实时统计</div></div>
+        <div class="card clickable" onclick="navTo('parking')"><div class="card-title">园区车辆</div><div class="card-value">156<span style="font-size:14px;font-weight:400"> 辆</span></div><div class="card-sub" style="color:var(--warning)">含危化品车 3 辆</div></div>
+        <div class="card clickable" onclick="navTo('alert')"><div class="card-title">今日告警</div><div class="card-value" style="color:var(--warning)">5</div><div class="card-change down">较昨日-2</div></div>
+        <div class="card clickable" onclick="navTo('device')"><div class="card-title">设备在线率</div><div class="card-value" style="color:var(--success)">99.2<span style="font-size:14px">%</span></div><div class="card-sub">129项设备材料</div></div>
+        <div class="card"><div class="card-title">今日产量</div><div class="card-value">186<span style="font-size:14px;font-weight:400"> 吨</span></div><div class="card-change up">+12.5% 环比</div></div>
+        <div class="card clickable" onclick="navTo('fire')"><div class="card-title">火险等级</div><div class="card-value" style="color:var(--warning)">中</div><div class="card-sub">火险指数 0.42</div></div>
       </div>
-      <div class="nodes">
-        <div class="node cloud" onclick="showDetail('cloud1')"><div class="connector-dot active-dot"></div><div class="node-top"><div class="node-icon">☁️</div><div class="node-name">云值守火情研判</div></div><div class="node-desc">AI 图像识别 · 自动火情检测与告警</div></div>
-        <div class="node cloud" onclick="showDetail('cloud2')"><div class="connector-dot"></div><div class="node-top"><div class="node-icon">🔧</div><div class="node-name">远程运维管理平台</div></div><div class="node-desc">设备监控 · 固件OTA · 日志采集</div></div>
-        <div class="node cloud" onclick="showDetail('cloud3')"><div class="connector-dot"></div><div class="node-top"><div class="node-icon">📱</div><div class="node-name">移动 APP 后端服务</div></div><div class="node-desc">推送通知 · 实时告警 · API Gateway</div></div>
+      <div class="grid-23">
+        <div class="card"><div class="card-title" style="margin-bottom:8px">子系统运行状态</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+            <div class="tag-row" style="flex-direction:column;gap:6px"><div class="tag active" style="display:flex;justify-content:space-between"><span>全光网络</span><span style="color:var(--success)">在线</span></div><div class="tag active" style="display:flex;justify-content:space-between"><span>视频监控</span><span style="color:var(--success)">在线</span></div><div class="tag active" style="display:flex;justify-content:space-between"><span>人员定位</span><span style="color:var(--success)">在线</span></div><div class="tag active" style="display:flex;justify-content:space-between"><span>人脸门禁</span><span style="color:var(--success)">在线</span></div></div>
+            <div class="tag-row" style="flex-direction:column;gap:6px"><div class="tag active" style="display:flex;justify-content:space-between"><span>道闸管理</span><span style="color:var(--success)">在线</span></div><div class="tag active" style="display:flex;justify-content:space-between"><span>车辆定位</span><span style="color:var(--success)">在线</span></div><div class="tag active" style="display:flex;justify-content:space-between"><span>火灾监控</span><span style="color:var(--success)">在线</span></div><div class="tag active" style="display:flex;justify-content:space-between"><span>电子围栏</span><span style="color:var(--warning)">1防区报警</span></div></div>
+            <div class="tag-row" style="flex-direction:column;gap:6px"><div class="tag active" style="display:flex;justify-content:space-between"><span>应急广播</span><span style="color:var(--success)">在线</span></div><div class="tag active" style="display:flex;justify-content:space-between"><span>能源与环境监测</span><span style="color:var(--success)">在线</span></div><div class="tag active" style="display:flex;justify-content:space-between"><span>网络安全</span><span style="color:var(--success)">在线</span></div><div class="tag" style="display:flex;justify-content:space-between"><span>综合管理平台</span><span style="color:var(--success)">运行中</span></div></div>
+          </div>
+        </div>
+        <div class="card"><div class="card-title" style="margin-bottom:8px">实时告警滚动</div><div class="alert-scroll">
+          <div class="alert-item l1"><span class="level-badge l1">一级</span><span>电子围栏-危化品区入侵告警</span><span class="time">14:32:18</span></div>
+          <div class="alert-item l2"><span class="level-badge l2">二级</span><span>热成像云台-3号开采区温度异常</span><span class="time">14:28:05</span></div>
+          <div class="alert-item l2"><span class="level-badge l2">二级</span><span>消防通道-C区通道被占用</span><span class="time">14:15:42</span></div>
+          <div class="alert-item l3"><span class="level-badge l3">三级</span><span>人员定位-开采区B区越网格作业告警</span><span class="time">13:58:21</span></div>
+          <div class="alert-item l1"><span class="level-badge l1">一级</span><span>配电房-弧光探测器预警</span><span class="time">13:42:09</span></div>
+          <div class="alert-item l3"><span class="level-badge l3">三级</span><span>门禁-黑名单人员预警（办公楼）</span><span class="time">13:20:33</span></div>
+        </div></div>
       </div>
-      <div class="uplink-hint">↑ Internet / 4G / 5G 上行链路 ↑</div>
-    </div>
-
-    <!-- Layer 2: Security -->
-    <div class="layer">
-      <div class="layer-header">
-        <div class="layer-stripe" style="background:var(--security);"></div>
-        <span class="layer-label" style="color:var(--security);">网络安全层 — 深信服纵深防御体系</span>
-        <span class="layer-count">3 项设备</span>
+      <div class="grid-3">
+        <div class="card"><div class="card-title" style="margin-bottom:8px">投资分布</div><div class="chart-wrap lg"><canvas id="chartInvest"></canvas></div></div>
+        <div class="card"><div class="card-title" style="margin-bottom:8px">各区域设备在线率</div><div class="chart-wrap lg"><canvas id="chartOnline"></canvas></div></div>
+        <div class="card"><div class="card-title" style="margin-bottom:8px">环境监测指标</div><div class="chart-wrap lg"><canvas id="chartEnv"></canvas></div></div>
       </div>
-      <div class="nodes">
-        <div class="node security" onclick="showDetail('sec1')"><div class="connector-dot active-dot"></div><div class="node-top"><div class="node-icon">🛡️</div><div class="node-name">NGAF 下一代防火墙</div></div><div class="node-desc">L7 应用识别 · IPS · AV · WAF</div></div>
-        <div class="node security" onclick="showDetail('sec2')"><div class="connector-dot active-dot"></div><div class="node-top"><div class="node-icon">📋</div><div class="node-name">AC 上网行为管理</div></div><div class="node-desc">流量审计 · 应用管控 · URL 过滤</div></div>
-        <div class="node security" onclick="showDetail('sec3')"><div class="connector-dot active-dot"></div><div class="node-top"><div class="node-icon">🔐</div><div class="node-name">SSL / IPSec VPN</div></div><div class="node-desc">AES-256-GCM 跨境加密通道</div></div>
-      </div>
-    </div>
-
-    <!-- Layer 3: Core Network -->
-    <div class="layer">
-      <div class="layer-header">
-        <div class="layer-stripe" style="background:var(--core);"></div>
-        <span class="layer-label" style="color:var(--core);">核心网络层</span>
-        <span class="layer-count">2 项核心设备</span>
-      </div>
-      <div class="nodes">
-        <div class="node core" onclick="showDetail('core1')"><div class="connector-dot active-dot"></div><div class="node-top"><div class="node-icon">🔀</div><div class="node-name">核心交换机</div></div><div class="node-desc">万兆上行 · PoE++ · L3 路由 · VRRP</div></div>
-        <div class="node core" onclick="showDetail('core2')"><div class="connector-dot active-dot"></div><div class="node-top"><div class="node-icon">💡</div><div class="node-name">OLT 光线路终端</div></div><div class="node-desc">华为 EA5800 / 锐捷 RG-IMC</div></div>
-      </div>
-      <div class="vlan-row">
-        <span class="vlan-chip" style="border-color:rgba(96,165,250,0.4); color:var(--core);">VLAN 100–199 内网</span>
-        <span class="vlan-chip" style="border-color:rgba(74,222,128,0.4); color:var(--sub-cam);">VLAN 200–299 办公网</span>
-        <span class="vlan-chip" style="border-color:rgba(251,146,60,0.4); color:var(--onu);">VLAN 300–399 访客外网</span>
-        <span class="vlan-chip" style="border-color:rgba(192,132,252,0.4); color:var(--sub-loc);">VLAN 400–499 设备专网</span>
+      <div class="grid-2">
+        <div class="card"><div class="card-title" style="margin-bottom:8px">联动业务闭环</div><div style="font-size:12px;line-height:2">
+          <div class="flow-row"><span class="flow-node" style="border-color:var(--accent)">人脸门禁</span><span class="flow-arrow">|></span><span class="flow-node">人员定位</span><span class="flow-arrow">|></span><span class="flow-node">视频监控</span><span style="color:var(--text2);margin-left:8px">人员管控</span></div>
+          <div class="flow-row"><span class="flow-node" style="border-color:var(--accent)">道闸管理</span><span class="flow-arrow">|></span><span class="flow-node">车辆定位</span><span class="flow-arrow">|></span><span class="flow-node">视频监控</span><span style="color:var(--text2);margin-left:8px">车辆管控</span></div>
+          <div class="flow-row"><span class="flow-node" style="border-color:var(--danger)">热成像云台</span><span class="flow-arrow">|></span><span class="flow-node">视频复核</span><span class="flow-arrow">|></span><span class="flow-node">消防安全管理</span><span style="color:var(--text2);margin-left:8px">火灾防控</span></div>
+          <div class="flow-row"><span class="flow-node" style="border-color:var(--success)">MES/ERP</span><span class="flow-arrow">|></span><span class="flow-node">DataEngine 数据底座</span><span class="flow-arrow">|></span><span class="flow-node">BI大屏/APP</span><span style="color:var(--text2);margin-left:8px">生产管理</span></div>
+          <div class="flow-row"><span class="flow-node" style="border-color:var(--warning)">电子围栏</span><span class="flow-arrow">|></span><span class="flow-node">监控弹屏</span><span class="flow-arrow">|></span><span class="flow-node">应急广播</span><span style="color:var(--text2);margin-left:8px">安防联动</span></div>
+          <div class="flow-row"><span class="flow-node" style="border-color:var(--danger)">烟感/弧光</span><span class="flow-arrow">|></span><span class="flow-node">消防主机</span><span class="flow-arrow">|></span><span class="flow-node">广播+喷淋</span><span style="color:var(--text2);margin-left:8px">消防安全管理</span></div>
+          <div class="flow-row"><span class="flow-node" style="border-color:var(--accent)">4G定位卡SOS</span><span class="flow-arrow">|></span><span class="flow-node">定位平台</span><span class="flow-arrow">|></span><span class="flow-node">救援调度</span><span style="color:var(--text2);margin-left:8px">紧急救援</span></div>
+          <div class="flow-row"><span class="flow-node" style="border-color:var(--warning)">气象站+热成像</span><span class="flow-arrow">|></span><span class="flow-node">火险指数计算</span><span class="flow-arrow">|></span><span class="flow-node">预警推送</span><span style="color:var(--text2);margin-left:8px">森林防火</span></div>
+        </div></div>
+        <div class="card"><div class="card-title" style="margin-bottom:8px">四层技术架构</div><div class="chart-wrap lg"><canvas id="chartArch"></canvas></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;font-size:10px;color:var(--text2);margin-top:4px"><span style="text-align:center">感知层</span><span style="text-align:center">网络层</span><span style="text-align:center">平台层</span><span style="text-align:center">应用层</span></div></div>
       </div>
     </div>
 
-    <!-- Layer 4: ODN -->
-    <div class="layer">
-      <div class="layer-header">
-        <div class="layer-stripe" style="background:var(--odn);"></div>
-        <span class="layer-label" style="color:var(--odn);">ODN 无源光分配网络</span>
-        <span class="layer-count">一级 / 二级分光</span>
+        <div class="page" id="page-ar">
+      <div class="ar-topbar">
+        <div class="ar-topbar-title">AR 实景地图</div>
+        <div class="ar-topbar-info">
+          <span>天气 晴 32°C</span><span>湿度 68%</span><span id="arTime">--</span>
+        </div>
       </div>
-      <div class="nodes">
-        <div class="node odn" onclick="showDetail('odn1')"><div class="connector-dot active-dot"></div><div class="node-top"><div class="node-icon">⚡</div><div class="node-name">1:4 分光器</div></div><div class="node-desc">车间区域 · 高带宽 · ≤7.2dB</div></div>
-        <div class="node odn" onclick="showDetail('odn2')"><div class="connector-dot active-dot"></div><div class="node-top"><div class="node-icon">⚡</div><div class="node-name">1:8 分光器</div></div><div class="node-desc">仓库 / 周界 · 中密度 · ≤10.5dB</div></div>
-        <div class="node odn" onclick="showDetail('odn3')"><div class="connector-dot active-dot"></div><div class="node-top"><div class="node-icon">⚡</div><div class="node-name">1:16 分光器</div></div><div class="node-desc">办公楼 · 高密度 · ≤13.5dB</div></div>
+      <div class="ar-image-wrap">
+        <img src="ar-real.png" alt="AR实景图" class="ar-full-img">
       </div>
-    </div>
-
-    <!-- Layer 5: ONU -->
-    <div class="layer">
-      <div class="layer-header">
-        <div class="layer-stripe" style="background:var(--onu);"></div>
-        <span class="layer-label" style="color:var(--onu);">ONU 接入层（四网逻辑隔离）</span>
-        <span class="layer-count">4 类设备</span>
-      </div>
-      <div class="nodes">
-        <div class="node onu" onclick="showDetail('onu1')"><div class="connector-dot active-dot"></div><div class="node-top"><div class="node-icon">🏠</div><div class="node-name">室内 ONU</div></div><div class="node-desc">桌面型 · WiFi 6 · 4×GE LAN</div></div>
-        <div class="node onu" onclick="showDetail('onu2')"><div class="connector-dot active-dot"></div><div class="node-top"><div class="node-icon">🏭</div><div class="node-name">工业 ONU</div></div><div class="node-desc">室外 · PoE++ · IP67 防护</div></div>
-        <div class="node onu" onclick="showDetail('onu3')"><div class="connector-dot active-dot"></div><div class="node-top"><div class="node-icon">📡</div><div class="node-name">车间高密 ONU</div></div><div class="node-desc">8×GE · PoE+ · DIN 导轨安装</div></div>
-        <div class="node onu" onclick="showDetail('onu4')"><div class="connector-dot active-dot"></div><div class="node-top"><div class="node-icon">📶</div><div class="node-name">4G / 5G CPE</div></div><div class="node-desc">采伐区无线回传 · LoRa 物联</div></div>
+      <div class="ar-bottombar">
+        <span>ParkMatrix | 工业园一体化管控平台 | iSecure Center 底座</span>
+        <span style="display:flex;align-items:center;gap:6px"><span style="color:#00e676">|</span> 正常 <span style="color:var(--warning)">|</span> 注意 <span style="color:var(--danger)">|</span> 告警</span>
       </div>
     </div>
 
-    <!-- Layer 6: Subsystems -->
-    <div class="sub-section">
-      <div class="sub-title" style="border-color:var(--sub-cam); color:var(--text-primary);">子系统一：视频监控系统</div>
-      <div class="sub-nodes">
-        <div class="node sub-cam" onclick="showDetail('cam1')">高清枪机</div>
-        <div class="node sub-cam" onclick="showDetail('cam2')">高清半球</div>
-        <div class="node sub-cam" onclick="showDetail('cam3')">智能警戒摄像机</div>
-        <div class="node sub-cam" onclick="showDetail('cam4')">热成像双光谱云台</div>
-        <div class="node sub-cam" onclick="showDetail('cam5')">热成像球机</div>
-        <div class="node sub-cam" onclick="showDetail('cam6')">人脸抓拍机</div>
-        <div class="node sub-cam" onclick="showDetail('cam7')">AI 智能分析服务器</div>
-        <div class="node sub-cam" onclick="showDetail('cam8')">NVR 录像机 (RAID)</div>
-      </div>
+<!-- Video Page -->
+    <div class="page" id="page-video">
+      <div class="kpi-row" style="grid-template-columns:repeat(5,1fr)"><div class="card"><div class="card-title">摄像机总数</div><div class="card-value">86<span style="font-size:14px"> 路</span></div></div><div class="card"><div class="card-title">在线率</div><div class="card-value" style="color:var(--success)">98.8%</div></div><div class="card"><div class="card-title">AI分析中</div><div class="card-value" style="color:var(--accent)">24<span style="font-size:14px"> 路</span></div></div><div class="card"><div class="card-title">热成像云台</div><div class="card-value">6<span style="font-size:14px"> 台</span></div></div><div class="card"><div class="card-title">今日告警</div><div class="card-value" style="color:var(--warning)">3</div></div></div>
+      <div class="grid-2"><div class="card"><div class="card-title" style="margin-bottom:8px">实时监控画面</div><div class="camera-grid" id="cameraGrid"></div></div>
+      <div class="card"><div class="card-title" style="margin-bottom:8px">视频AI智能分析</div><table class="data-table"><thead><tr><th>分析类型</th><th>区域</th><th>结果</th><th>时间</th></tr></thead><tbody><tr><td>人流密度</td><td>1号车间</td><td><span style="color:var(--success)">正常 (32人)</span></td><td>14:35</td></tr><tr><td>区域入侵</td><td>仓库B区周界</td><td><span style="color:var(--danger)">异常-已推送</span></td><td>14:32</td></tr><tr><td>在离岗</td><td>配电房</td><td><span style="color:var(--success)">在岗</span></td><td>14:30</td></tr><tr><td>消防通道</td><td>C区通道</td><td><span style="color:var(--warning)">占用超时</span></td><td>14:15</td></tr><tr><td>徘徊检测</td><td>危化品区</td><td><span style="color:var(--success)">无异常</span></td><td>14:10</td></tr></tbody></table></div></div>
+      <div class="card" style="margin-top:16px"><div class="card-title" style="margin-bottom:8px">热成像温度监测</div><div class="chart-wrap sm"><canvas id="chartThermal"></canvas></div></div>
     </div>
-    <div class="sub-section">
-      <div class="sub-title" style="border-color:var(--sub-loc);">子系统二：人员定位系统</div>
-      <div class="sub-nodes">
-        <div class="node sub-loc" onclick="showDetail('loc1')">4G 定位卡 (GPS/北斗+Cat.1)</div>
-        <div class="node sub-loc" onclick="showDetail('loc2')">SOS 一键报警终端</div>
-        <div class="node sub-loc" onclick="showDetail('loc3')">第三方定位管理平台</div>
-        <div class="node sub-loc" onclick="showDetail('loc4')">GIS 网格划分管理</div>
-      </div>
+    <!-- Access Page -->
+    <div class="page" id="page-access">
+      <div class="kpi-row" style="grid-template-columns:repeat(5,1fr)"><div class="card"><div class="card-title">在园总人数</div><div class="card-value" id="kpiAccessTotal">1,847</div></div><div class="card"><div class="card-title">员工</div><div class="card-value" style="color:var(--accent)">1,620</div></div><div class="card"><div class="card-title">访客</div><div class="card-value" style="color:var(--success)">38</div></div><div class="card"><div class="card-title">外包人员</div><div class="card-value" style="color:var(--warning)">189</div></div><div class="card"><div class="card-title">黑名单预警</div><div class="card-value" style="color:var(--danger)">1</div></div></div>
+      <div class="grid-2"><div class="card"><div class="card-title" style="margin-bottom:8px">人脸门禁通行统计</div><div class="chart-wrap lg"><canvas id="chartDoor"></canvas></div></div><div class="card"><div class="card-title" style="margin-bottom:8px">在园人员实时分布</div><div class="chart-wrap lg"><canvas id="chartPeople"></canvas></div></div></div>
+      <div class="grid-2"><div class="card"><div class="card-title" style="margin-bottom:8px">访客登记</div><table class="data-table"><thead><tr><th>姓名</th><th>单位</th><th>被访人</th><th>入园</th><th>状态</th></tr></thead><tbody><tr><td>张伟</td><td>老挝林业局</td><td>李明辉</td><td>09:15</td><td><span class="status-badge online">在园</span></td></tr><tr><td>Somsak</td><td>万象运输</td><td>王建华</td><td>10:30</td><td><span class="status-badge online">在园</span></td></tr><tr><td>陈丽华</td><td>中老合作办</td><td>赵志强</td><td>11:00</td><td><span class="status-badge online">在园</span></td></tr><tr><td>Bounmy</td><td>琅勃拉邦竹业</td><td>刘伟</td><td>13:45</td><td><span class="status-badge online">在园</span></td></tr><tr><td>王磊</td><td>华为技术</td><td>陈总</td><td>14:20</td><td><span class="status-badge online">在园</span></td></tr></tbody></table></div>
+      <div class="card"><div class="card-title" style="margin-bottom:8px">黑名单预警 & 轨迹</div><div class="alert-item l1" style="margin-bottom:10px"><span class="level-badge l1">预警</span><span>黑名单人员: 李XX 办公楼大厅</span><span class="time">13:20</span></div><div class="flow-row"><span class="flow-node">09:00 主入口</span><span class="flow-arrow">|></span><span class="flow-node">09:05 办公楼</span><span class="flow-arrow">|></span><span class="flow-node">10:30 1号车间</span><span class="flow-arrow">|></span><span class="flow-node">12:00 食堂</span><span class="flow-arrow">|></span><span class="flow-node" style="border-color:var(--danger)">13:20 办公楼(预警)</span></div><div class="chart-wrap sm" style="margin-top:12px"><canvas id="chartTrack"></canvas></div></div></div>
     </div>
-    <div class="sub-section">
-      <div class="sub-title" style="border-color:var(--sub-door);">子系统三：人脸门禁系统</div>
-      <div class="sub-nodes">
-        <div class="node sub-door" onclick="showDetail('door1')">人脸识别门禁一体机</div>
-        <div class="node sub-door" onclick="showDetail('door2')">闸机伴侣 (三辊闸/翼闸)</div>
-        <div class="node sub-door" onclick="showDetail('door3')">门禁控制器 (离线 1 万条)</div>
-        <div class="node sub-door" onclick="showDetail('door4')">访客预约管理系统</div>
-      </div>
+    <!-- Parking Page -->
+    <div class="page" id="page-parking">
+      <div class="kpi-row" style="grid-template-columns:repeat(5,1fr)"><div class="card"><div class="card-title">总车位</div><div class="card-value">327</div></div><div class="card"><div class="card-title">已停</div><div class="card-value" style="color:var(--accent)">89</div></div><div class="card"><div class="card-title">空闲</div><div class="card-value" style="color:var(--success)">238</div></div><div class="card"><div class="card-title">危化品在位</div><div class="card-value" style="color:var(--warning)">3</div></div><div class="card"><div class="card-title">占用率</div><div class="card-value">27.2<span style="font-size:14px">%</span></div></div></div>
+      <div class="grid-2"><div class="card"><div class="card-title" style="margin-bottom:8px">停车场实时车位图</div><div style="text-align:center;color:var(--text2);font-size:11px;margin-bottom:8px"><span style="display:inline-block;width:10px;height:10px;background:var(--success);border-radius:2px;vertical-align:middle"></span>空闲 <span style="display:inline-block;width:10px;height:10px;background:var(--danger);border-radius:2px;vertical-align:middle;margin-left:8px"></span>占用 <span style="display:inline-block;width:10px;height:10px;background:var(--warning);border-radius:2px;vertical-align:middle;margin-left:8px"></span>危化品</div><div class="parking-grid" id="parkingGrid"></div></div>
+      <div class="card"><div class="card-title" style="margin-bottom:8px">车辆进出记录</div><table class="data-table"><thead><tr><th>车牌</th><th>类型</th><th>方向</th><th>时间</th><th>通道</th></tr></thead><tbody><tr><td>云A88662</td><td>内部</td><td style="color:var(--success)">入场</td><td>14:35</td><td>1号</td></tr><tr><td>云F23318</td><td>物流</td><td style="color:var(--danger)">出场</td><td>14:30</td><td>货运</td></tr><tr><td>云F99012</td><td>危化品</td><td style="color:var(--success)">入场</td><td>14:20</td><td>货运</td></tr><tr><td>云A56231</td><td>访客</td><td style="color:var(--success)">入场</td><td>14:10</td><td>2号</td></tr><tr><td>云F77890</td><td>内部</td><td style="color:var(--danger)">出场</td><td>13:55</td><td>1号</td></tr><tr><td>云A45218</td><td>物流</td><td style="color:var(--success)">入场</td><td>13:40</td><td>货运</td></tr></tbody></table></div></div>
+      <div class="card" style="margin-top:16px"><div class="card-title" style="margin-bottom:8px">危化品车辆监管 & 道闸状态</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:16px"><div><table class="data-table"><thead><tr><th>车牌</th><th>位置</th><th>状态</th><th>路线</th></tr></thead><tbody><tr><td>云F99012</td><td>危化品停车区</td><td><span class="status-badge online">已停</span></td><td style="color:var(--success)">合规</td></tr><tr><td>云F99015</td><td>装卸区</td><td><span class="status-badge warning">作业中</span></td><td style="color:var(--success)">合规</td></tr><tr><td>云F99008</td><td>货运通道</td><td><span class="status-badge online">行驶中</span></td><td style="color:var(--success)">合规</td></tr></tbody></table></div><div style="display:flex;gap:16px;justify-content:center;align-items:center"><div style="text-align:center"><div class="traffic-light"><div class="tl on" style="background:var(--success);color:var(--success)"></div><div class="tl" style="background:var(--warning)"></div><div class="tl on" style="background:var(--danger)"></div></div><div style="font-size:11px">1号</div></div><div style="text-align:center"><div class="traffic-light"><div class="tl on" style="background:var(--success)"></div><div class="tl" style="background:var(--warning)"></div><div class="tl" style="background:var(--success)"></div></div><div style="font-size:11px">2号</div></div><div style="text-align:center"><div class="traffic-light"><div class="tl on" style="background:var(--success)"></div><div class="tl" style="background:var(--warning)"></div><div class="tl on" style="background:var(--danger)"></div></div><div style="font-size:11px">货运</div></div><div style="text-align:center"><div class="traffic-light"><div class="tl" style="background:var(--danger)"></div><div class="tl" style="background:var(--danger)"></div><div class="tl" style="background:var(--danger)"></div></div><div style="font-size:11px;color:var(--text2)">紧急</div></div></div></div></div>
     </div>
-    <div class="sub-section">
-      <div class="sub-title" style="border-color:var(--sub-gate);">子系统四：道闸管理系统</div>
-      <div class="sub-nodes">
-        <div class="node sub-gate" onclick="showDetail('gate1')">车牌识别一体机</div>
-        <div class="node sub-gate" onclick="showDetail('gate2')">智能道闸</div>
-        <div class="node sub-gate" onclick="showDetail('gate3')">出入口控制终端</div>
-      </div>
+    <!-- Fire Page -->
+    <div class="page" id="page-fire">
+      <div class="kpi-row" style="grid-template-columns:repeat(5,1fr)"><div class="card"><div class="card-title">热成像云台</div><div class="card-value">6<span style="font-size:14px"> 台</span></div><div class="card-change up">全部在线</div></div><div class="card"><div class="card-title">烟感探测器</div><div class="card-value">128<span style="font-size:14px"> 个</span></div></div><div class="card"><div class="card-title">今日火情</div><div class="card-value" style="color:var(--warning)">2</div></div><div class="card"><div class="card-title">通道占用</div><div class="card-value" style="color:var(--danger)">1</div></div><div class="card"><div class="card-title">火险等级</div><div class="card-value" style="color:var(--warning)">中</div></div></div>
+      <div class="grid-2"><div class="card"><div class="card-title" style="margin-bottom:8px">消防设备分布</div><div class="chart-wrap lg"><canvas id="chartFireDevice"></canvas></div></div><div class="card"><div class="card-title" style="margin-bottom:8px">消防报警记录</div><table class="data-table"><thead><tr><th>时间</th><th>位置</th><th>类型</th><th>状态</th></tr></thead><tbody><tr><td>14:28</td><td>3号开采区</td><td style="color:var(--danger)">热成像温度异常</td><td><span class="status-badge warning">复核中</span></td></tr><tr><td>13:42</td><td>配电房</td><td style="color:var(--danger)">弧光探测器</td><td><span class="status-badge warning">处理中</span></td></tr><tr><td>10:15</td><td>2号车间</td><td style="color:var(--warning)">烟感报警</td><td><span class="status-badge online">已解除</span></td></tr><tr><td>08:50</td><td>原料仓库</td><td style="color:var(--warning)">温湿度异常</td><td><span class="status-badge online">已解除</span></td></tr></tbody></table></div></div>
+      <div class="grid-2"><div class="card"><div class="card-title" style="margin-bottom:8px">消防主机状态</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div style="text-align:center;padding:12px;background:var(--panel2);border-radius:8px"><div style="font-size:24px;color:var(--success)">在线</div><div style="font-size:11px;color:var(--text2)">报警主机</div></div><div style="text-align:center;padding:12px;background:var(--panel2);border-radius:8px"><div style="font-size:24px;color:var(--success)">正常</div><div style="font-size:11px;color:var(--text2)">喷淋泵</div></div><div style="text-align:center;padding:12px;background:var(--panel2);border-radius:8px"><div style="font-size:24px;color:var(--success)">正常</div><div style="font-size:11px;color:var(--text2)">消防水泵</div></div><div style="text-align:center;padding:12px;background:var(--panel2);border-radius:8px"><div style="font-size:24px;color:var(--success)">待命</div><div style="font-size:11px;color:var(--text2)">应急广播</div></div></div></div></div>
+      <div class="card"><div class="card-title" style="margin-bottom:8px">火情处置流程 & 联动预案</div><div class="flow-row"><span class="flow-node" style="background:rgba(230,57,70,.15);border-color:var(--danger)">热成像预警</span><span class="flow-arrow">|></span><span class="flow-node" style="background:rgba(255,107,53,.15);border-color:var(--warning)">视频复核</span><span class="flow-arrow">|></span><span class="flow-node" style="background:rgba(0,180,216,.15);border-color:var(--accent)">消防安全管理</span></div><div style="font-size:12px;color:var(--text2);margin-top:12px;line-height:2"><div>1. 热成像云台检测 | 自动锁定+GIS坐标解算</div><div>2. 推送云端值守 | 大模型二次分析+专家复核</div><div>3. 火情确认 | 广播疏散+喷淋启动+人员统计</div><div>4. 周边消防栓/灭火器/应急出口标注</div><div>5. 人员定位系统统计火情区域人员分布</div></div></div>
     </div>
-    <div class="sub-section">
-      <div class="sub-title" style="border-color:var(--sub-car);">子系统五：车辆定位系统</div>
-      <div class="sub-nodes">
-        <div class="node sub-car" onclick="showDetail('car1')">GPS / 北斗车载终端</div>
-        <div class="node sub-car" onclick="showDetail('car2')">电子围栏超速告警</div>
-      </div>
+    <!-- Situational Awareness Page (NEW - iSecure Center) -->
+    <div class="page" id="page-situational">
+      <div class="kpi-row" style="grid-template-columns:repeat(5,1fr)"><div class="card"><div class="card-title">安全态势评分</div><div class="card-value" style="color:var(--accent)">85<span style="font-size:14px"> 分</span></div><div class="card-change up">良好</div></div><div class="card"><div class="card-title">今日安全事件</div><div class="card-value" style="color:var(--warning)">8</div><div class="card-change down">较昨日-2</div></div><div class="card"><div class="card-title">报警响应率</div><div class="card-value" style="color:var(--success)">97.5<span style="font-size:14px">%</span></div></div><div class="card"><div class="card-title">巡查完成率</div><div class="card-value" style="color:var(--success)">92.0<span style="font-size:14px">%</span></div></div><div class="card"><div class="card-title">访客合规率</div><div class="card-value" style="color:var(--success)">99.1<span style="font-size:14px">%</span></div></div></div>
+      <div class="grid-2"><div class="card"><div class="card-title" style="margin-bottom:8px">安全态势雷达图</div><div class="chart-wrap lg"><canvas id="chartRadar"></canvas></div></div><div class="card"><div class="card-title" style="margin-bottom:8px">风险趋势（近30天）</div><div class="chart-wrap lg"><canvas id="chartRiskTrend"></canvas></div></div></div>
+      <div class="grid-2"><div class="card"><div class="card-title" style="margin-bottom:8px">重点区域风险热力图</div><div style="display:grid;grid-template-columns:repeat(6,1fr);gap:2px" id="heatmapGrid"></div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text2);margin-top:4px"><span>危化品区</span><span>原料仓库</span><span>配电房</span><span>1号车间</span><span>办公楼</span><span style="color:var(--danger)">开采区B</span></div></div><div class="card"><div class="card-title" style="margin-bottom:8px">今日安全事件统计</div><table class="data-table"><thead><tr><th>事件类型</th><th>次数</th><th>风险等级</th><th>趋势</th></tr></thead><tbody><tr><td>周界入侵</td><td>2</td><td><span class="level-badge l1">一级</span></td><td style="color:var(--success)">-50%</td></tr><tr><td>消防火情</td><td>2</td><td><span class="level-badge l2">二级</span></td><td style="color:var(--danger)">+100%</td></tr><tr><td>人员越界</td><td>1</td><td><span class="level-badge l3">三级</span></td><td style="color:var(--success)">-66%</td></tr><tr><td>设备故障</td><td>1</td><td><span class="level-badge l2">二级</span></td><td style="color:var(--text)">持平</td></tr><tr><td>车辆违规</td><td>1</td><td><span class="level-badge l3">三级</span></td><td style="color:var(--text)">持平</td></tr><tr><td>门禁异常</td><td>1</td><td><span class="level-badge l3">三级</span></td><td style="color:var(--text)">持平</td></tr></tbody></table></div></div>
     </div>
-    <div class="sub-section">
-      <div class="sub-title" style="border-color:var(--sub-fire);">子系统六：火灾监控系统</div>
-      <div class="sub-nodes">
-        <div class="node sub-fire" onclick="showDetail('fire1')">热成像重载云台 (3–5 km)</div>
-        <div class="node sub-fire" onclick="showDetail('fire2')">热成像中载云台 (1–2 km)</div>
-        <div class="node sub-fire" onclick="showDetail('fire3')">烟感探测器</div>
-        <div class="node sub-fire" onclick="showDetail('fire4')">弧光探测器</div>
-      </div>
+    <!-- Card Management Page -->
+    <div class="page" id="page-cardmgmt">
+      <div class="kpi-row" style="grid-template-columns:repeat(4,1fr)"><div class="card"><div class="card-title">发卡总量</div><div class="card-value">2,860<span style="font-size:14px"> 张</span></div></div><div class="card"><div class="card-title">今日刷卡次数</div><div class="card-value" style="color:var(--accent)">6,520</div></div><div class="card"><div class="card-title">门禁通行</div><div class="card-value" style="color:var(--success)">4,180</div></div><div class="card"><div class="card-title">消费交易</div><div class="card-value" style="color:var(--warning)">2,340</div></div></div>
+      <div class="grid-2"><div class="card"><div class="card-title" style="margin-bottom:8px">门禁通行记录</div><table class="data-table"><thead><tr><th>时间</th><th>姓名</th><th>卡号</th><th>点位</th><th>方向</th><th>结果</th></tr></thead><tbody><tr><td>14:35</td><td>王建华</td><td>88000120</td><td>办公楼大厅</td><td>进</td><td><span class="status-badge online">通过</span></td></tr><tr><td>14:32</td><td>李明辉</td><td>88000015</td><td>1号车间</td><td>进</td><td><span class="status-badge online">通过</span></td></tr><tr><td>14:30</td><td>赵志强</td><td>88000032</td><td>主入口</td><td>出</td><td><span class="status-badge online">通过</span></td></tr><tr><td>14:25</td><td>刘伟</td><td>88000088</td><td>仓库A</td><td>进</td><td><span class="status-badge online">通过</span></td></tr><tr><td>14:20</td><td>李XX</td><td>88000999</td><td>办公楼大厅</td><td>进</td><td><span class="status-badge offline">拒绝</span></td></tr></tbody></table></div><div class="card"><div class="card-title" style="margin-bottom:8px">消费记录</div><table class="data-table"><thead><tr><th>时间</th><th>姓名</th><th>消费点</th><th>金额</th><th>类型</th></tr></thead><tbody><tr><td>12:05</td><td>李明辉</td><td>食堂</td><td>15.00</td><td>午餐</td></tr><tr><td>12:10</td><td>王建华</td><td>食堂</td><td>18.00</td><td>午餐</td></tr><tr><td>12:15</td><td>赵志强</td><td>食堂</td><td>12.00</td><td>午餐</td></tr><tr><td>08:30</td><td>张伟</td><td>便利店</td><td>8.50</td><td>购物</td></tr><tr><td>07:45</td><td>陈丽华</td><td>食堂</td><td>6.00</td><td>早餐</td></tr></tbody></table></div></div>
+      <div class="card" style="margin-top:16px"><div class="card-title" style="margin-bottom:8px">卡片状态管理</div><table class="data-table"><thead><tr><th>卡号</th><th>持卡人</th><th>类型</th><th>有效期</th><th>余额</th><th>状态</th></tr></thead><tbody><tr><td>88000001</td><td>总经理</td><td>管理员卡</td><td>2028-12-31</td><td>--</td><td><span class="status-badge online">正常</span></td></tr><tr><td>88000120</td><td>王建华</td><td>员工卡</td><td>2027-06-30</td><td>320.50</td><td><span class="status-badge online">正常</span></td></tr><tr><td>88000999</td><td>李XX</td><td>外来人员</td><td>--</td><td>--</td><td><span class="status-badge offline">黑名单</span></td></tr><tr><td>88000015</td><td>李明辉</td><td>员工卡</td><td>2027-12-31</td><td>156.00</td><td><span class="status-badge online">正常</span></td></tr><tr><td>88000188</td><td>张XX</td><td>访客卡</td><td>2026-06-16</td><td>50.00</td><td><span class="status-badge warning">今日到期</span></td></tr></tbody></table></div>
     </div>
-    <div class="sub-section">
-      <div class="sub-title" style="border-color:var(--sub-fence);">子系统七：电子围栏系统</div>
-      <div class="sub-nodes">
-        <div class="node sub-fence" onclick="showDetail('fence1')">6 线制双防区脉冲主机</div>
-        <div class="node sub-fence" onclick="showDetail('fence2')">前端杆件 / 合金导线</div>
-      </div>
+    <!-- Patrol Page (NEW - iSecure Center) -->
+    <div class="page" id="page-patrol">
+      <div class="kpi-row" style="grid-template-columns:repeat(4,1fr)"><div class="card"><div class="card-title">巡查路线</div><div class="card-value">8<span style="font-size:14px"> 条</span></div></div><div class="card"><div class="card-title">巡查点位</div><div class="card-value">46<span style="font-size:14px"> 个</span></div></div><div class="card"><div class="card-title">今日巡查完成</div><div class="card-value" style="color:var(--success)">92<span style="font-size:14px">%</span></div></div><div class="card"><div class="card-title">巡查中</div><div class="card-value" style="color:var(--accent)">3<span style="font-size:14px"> 组</span></div></div></div>
+      <div class="grid-2"><div class="card"><div class="card-title" style="margin-bottom:8px">巡查路线1: 危化品-配电房-周界</div><div class="patrol-route"><div class="patrol-dot done">1</div><div class="patrol-line done"></div><div class="patrol-dot done">2</div><div class="patrol-line done"></div><div class="patrol-dot done">3</div><div class="patrol-line done"></div><div class="patrol-dot done">4</div><div class="patrol-line pending"></div><div class="patrol-dot current">5</div><div class="patrol-line pending"></div><div class="patrol-dot pending">6</div><div class="patrol-line pending"></div><div class="patrol-dot pending">7</div></div><div style="font-size:10px;color:var(--text2);margin-top:4px">当前: 张队长 | 点位5: 周界东段 | 打卡时间: 14:30</div>
+          <div style="margin-top:12px"><div class="card-title" style="margin-bottom:8px">巡查路线2: 开采区-车间</div><div class="patrol-route"><div class="patrol-dot done">1</div><div class="patrol-line done"></div><div class="patrol-dot done">2</div><div class="patrol-line done"></div><div class="patrol-dot current">3</div><div class="patrol-line pending"></div><div class="patrol-dot pending">4</div><div class="patrol-line pending"></div><div class="patrol-dot pending">5</div></div><div style="font-size:10px;color:var(--text2);margin-top:4px">当前: 李XX | 点位3: 1号车间内部 | 打卡时间: 14:25</div></div>
+          <div style="margin-top:12px"><div class="card-title" style="margin-bottom:8px">巡查路线3: 仓库-停车场</div><div class="patrol-route"><div class="patrol-dot done">1</div><div class="patrol-line done"></div><div class="patrol-dot done">2</div><div class="patrol-line pending"></div><div class="patrol-dot current">3</div><div class="patrol-line pending"></div><div class="patrol-dot pending">4</div></div><div style="font-size:10px;color:var(--text2);margin-top:4px">当前: 王XX | 点位3: 成品仓库B | 打卡时间: 14:20</div></div></div>
+      <div class="card"><div class="card-title" style="margin-bottom:8px">巡查记录</div><table class="data-table"><thead><tr><th>路线</th><th>巡查员</th><th>完成时间</th><th>异常数</th><th>状态</th></tr></thead><tbody><tr><td>路线1</td><td>张队长</td><td>14:30 (进行中)</td><td>1</td><td><span class="status-badge warning">4/7</span></td></tr><tr><td>路线2</td><td>李XX</td><td>14:25 (进行中)</td><td>0</td><td><span class="status-badge warning">2/5</span></td></tr><tr><td>路线3</td><td>王XX</td><td>14:20 (进行中)</td><td>0</td><td><span class="status-badge online">2/4</span></td></tr><tr><td>路线4</td><td>赵XX</td><td>14:10</td><td>0</td><td><span class="status-badge online">已完成</span></td></tr><tr><td>路线5</td><td>陈XX</td><td>13:50</td><td>2</td><td><span class="status-badge online">已完成</span></td></tr></tbody></table></div></div>
     </div>
-    <div class="sub-section">
-      <div class="sub-title" style="border-color:var(--sub-bcast);">子系统八：应急广播系统</div>
-      <div class="sub-nodes">
-        <div class="node sub-bcast" onclick="showDetail('bcast1')">网络广播主机 (中老双语)</div>
-        <div class="node sub-bcast" onclick="showDetail('bcast2')">室外音柱 / 室内音箱</div>
-      </div>
+    <!-- Ops Page -->
+    <div class="page" id="page-ops">
+      <div class="kpi-row" style="grid-template-columns:repeat(4,1fr)"><div class="card"><div class="card-title">工单总数</div><div class="card-value">128</div><div class="card-sub">本月累计</div></div><div class="card"><div class="card-title">处理中</div><div class="card-value" style="color:var(--warning)">12</div></div><div class="card"><div class="card-title">已完成</div><div class="card-value" style="color:var(--success)">114</div></div><div class="card"><div class="card-title">SLA达标率</div><div class="card-value" style="color:var(--success)">96.8<span style="font-size:14px">%</span></div></div></div>
+      <div class="grid-2"><div class="card"><div class="card-title" style="margin-bottom:8px">运维工单列表</div><table class="data-table"><thead><tr><th>工单号</th><th>设备</th><th>故障描述</th><th>优先级</th><th>状态</th></tr></thead><tbody><tr><td>WO-2026-0156</td><td>电子围栏主机</td><td>防区2通信异常</td><td><span style="color:var(--danger)">紧急</span></td><td><span class="status-badge warning">处理中</span></td></tr><tr><td>WO-2026-0155</td><td>热成像球机</td><td>温度读数偏差</td><td><span style="color:var(--warning)">高</span></td><td><span class="status-badge warning">派单</span></td></tr><tr><td>WO-2026-0154</td><td>ONU-023</td><td>光功率下降</td><td><span style="color:var(--warning)">高</span></td><td><span class="status-badge warning">处理中</span></td></tr><tr><td>WO-2026-0153</td><td>车牌识别一体机</td><td>识别率下降</td><td><span style="color:var(--accent)">中</span></td><td><span class="status-badge online">已完成</span></td></tr><tr><td>WO-2026-0152</td><td>气象站</td><td>风速传感器异常</td><td><span style="color:var(--accent)">中</span></td><td><span class="status-badge online">已完成</span></td></tr><tr><td>WO-2026-0151</td><td>智能电表</td><td>Modbus通信超时</td><td><span style="color:var(--text)">低</span></td><td><span class="status-badge online">已完成</span></td></tr></tbody></table></div><div class="card"><div class="card-title" style="margin-bottom:8px">设备健康度评分 Top 榜单</div><table class="data-table"><thead><tr><th>设备</th><th>子系统</th><th>健康度</th><th>上次维护</th></tr></thead><tbody><tr><td>OLT EA5800</td><td>全光网络</td><td style="color:var(--success)">98.5%</td><td>6月15日</td></tr><tr><td>AI分析服务器</td><td>视频监控</td><td style="color:var(--success)">97.2%</td><td>6月12日</td></tr><tr><td>NVR录像机</td><td>视频监控</td><td style="color:var(--success)">96.0%</td><td>6月10日</td></tr><tr><td>消防报警主机</td><td>火灾监控</td><td style="color:var(--success)">95.5%</td><td>6月08日</td></tr><tr><td>深信服防火墙</td><td>网络安全</td><td style="color:var(--warning)">88.2%</td><td>6月01日</td></tr></tbody></table><div style="margin-top:12px"><div class="card-title" style="margin-bottom:8px">设备故障统计（近7天）</div><div class="chart-wrap sm"><canvas id="chartOpsFault"></canvas></div></div></div></div>
     </div>
-    <div class="sub-section">
-      <div class="sub-title" style="border-color:var(--sub-energy);">子系统九：能源环境监测</div>
-      <div class="sub-nodes">
-        <div class="node sub-energy" onclick="showDetail('energy1')">智能电表 / 智能水表</div>
-        <div class="node sub-energy" onclick="showDetail('energy2')">气象站 / 水位传感器</div>
-        <div class="node sub-energy" onclick="showDetail('energy3')">倾角传感器</div>
-      </div>
+    <!-- Energy Page -->
+    <div class="page" id="page-energy">
+      <div class="kpi-row" style="grid-template-columns:repeat(4,1fr)"><div class="card"><div class="card-title">今日用电</div><div class="card-value">12,850<span style="font-size:14px"> kWh</span></div><div class="card-change down">-3.2%</div></div><div class="card"><div class="card-title">今日用水</div><div class="card-value">86.5<span style="font-size:14px"> 吨</span></div><div class="card-change up">+5.1%</div></div><div class="card"><div class="card-title">今日用气</div><div class="card-value">320<span style="font-size:14px"> m³</span></div><div class="card-change down">-1.8%</div></div><div class="card"><div class="card-title">能耗总费用</div><div class="card-value" style="color:var(--warning)">8,620<span style="font-size:14px"> 元</span></div></div></div>
+      <div class="grid-2"><div class="card"><div class="card-title" style="margin-bottom:8px">各区域能耗对比</div><div class="chart-wrap lg"><canvas id="chartEnergyArea"></canvas></div></div><div class="card"><div class="card-title" style="margin-bottom:8px">能耗趋势（近7天）</div><div class="chart-wrap lg"><canvas id="chartEnergyTrend"></canvas></div></div></div>
+      <div class="card"><div class="card-title" style="margin-bottom:8px">设备能耗排名 TOP10</div><table class="data-table"><thead><tr><th>排名</th><th>设备</th><th>区域</th><th>用电(kWh)</th><th>占比</th></tr></thead><tbody><tr><td>1</td><td>1号加工线</td><td>1号车间</td><td>2,850</td><td><div class="progress-bar"><div class="progress-fill blue" style="width:100%"></div></div></td></tr><tr><td>2</td><td>2号加工线</td><td>2号车间</td><td>2,620</td><td><div class="progress-bar"><div class="progress-fill blue" style="width:92%"></div></div></td></tr><tr><td>3</td><td>3号加工线</td><td>3号车间</td><td>2,410</td><td><div class="progress-bar"><div class="progress-fill blue" style="width:85%"></div></div></td></tr><tr><td>4</td><td>空压机组</td><td>动力站</td><td>1,890</td><td><div class="progress-bar"><div class="progress-fill orange" style="width:66%"></div></div></td></tr><tr><td>5</td><td>制冷系统</td><td>仓库</td><td>1,240</td><td><div class="progress-bar"><div class="progress-fill orange" style="width:44%"></div></div></td></tr><tr><td>6</td><td>办公楼空调</td><td>办公楼</td><td>680</td><td><div class="progress-bar"><div class="progress-fill green" style="width:24%"></div></div></td></tr><tr><td>7</td><td>照明系统</td><td>全园区</td><td>560</td><td><div class="progress-bar"><div class="progress-fill green" style="width:20%"></div></div></td></tr><tr><td>8</td><td>机房设备</td><td>中心机房</td><td>520</td><td><div class="progress-bar"><div class="progress-fill green" style="width:18%"></div></div></td></tr><tr><td>9</td><td>食堂电器</td><td>食堂</td><td>340</td><td><div class="progress-bar"><div class="progress-fill green" style="width:12%"></div></div></td></tr><tr><td>10</td><td>宿舍用电</td><td>宿舍区</td><td>310</td><td><div class="progress-bar"><div class="progress-fill green" style="width:11%"></div></div></td></tr></tbody></table></div>
     </div>
-    <div class="sub-section">
-      <div class="sub-title" style="border-color:var(--sub-grid);">子系统十：采伐区网格化管理</div>
-      <div class="sub-nodes">
-        <div class="node sub-grid" onclick="showDetail('grid1')">500m × 500m 网格划分</div>
-        <div class="node sub-grid" onclick="showDetail('grid2')">产量上限管控</div>
-      </div>
+    <!-- Device Page -->
+    <div class="page" id="page-device">
+      <div class="kpi-row" style="grid-template-columns:repeat(4,1fr)"><div class="card"><div class="card-title">设备总数</div><div class="card-value">129</div><div class="card-sub">13个分部工程</div></div><div class="card"><div class="card-title">在线设备</div><div class="card-value" style="color:var(--success)">128</div></div><div class="card"><div class="card-title">离线设备</div><div class="card-value" style="color:var(--danger)">1</div></div><div class="card"><div class="card-title">在线率</div><div class="card-value" style="color:var(--success)">99.2%</div></div></div>
+      <div class="grid-2"><div class="card"><div class="card-title" style="margin-bottom:8px">设备类型分布</div><div class="chart-wrap lg"><canvas id="chartDeviceType"></canvas></div></div><div class="card"><div class="card-title" style="margin-bottom:8px">各子系统在线率</div><div class="chart-wrap lg"><canvas id="chartDeviceOnline"></canvas></div></div></div>
+      <div class="card"><div class="card-title" style="margin-bottom:8px">全量设备清单 <input class="search-box" placeholder="搜索设备名称/编号/位置..." style="width:250px;display:inline-block;margin-left:12px" oninput="filterDeviceTable(this.value)"></div><div style="max-height:400px;overflow-y:auto"><table class="data-table" id="deviceTable"><thead><tr><th>编号</th><th>设备名称</th><th>子系统</th><th>型号</th><th>位置</th><th>状态</th></tr></thead><tbody id="deviceTbody"></tbody></table></div></div>
     </div>
-    <div class="sub-section">
-      <div class="sub-title" style="border-color:var(--sub-oa);">子系统十一：办公协同平台（二期）</div>
-      <div class="sub-nodes">
-        <div class="node sub-oa" onclick="showDetail('oa1')">OA / 财务 / 人力 / 考勤 / 薪资</div>
-        <div class="node sub-oa" onclick="showDetail('oa2')">LDAP 单点登录 · 中老双语</div>
-      </div>
+    <!-- Alert Page -->
+    <div class="page" id="page-alert">
+      <div class="kpi-row" style="grid-template-columns:repeat(4,1fr)"><div class="card"><div class="card-title">今日告警</div><div class="card-value" style="color:var(--warning)">5</div></div><div class="card"><div class="card-title">一级告警</div><div class="card-value" style="color:var(--danger)">2</div></div><div class="card"><div class="card-title">已处理</div><div class="card-value" style="color:var(--success)">3</div></div><div class="card"><div class="card-title">处理中</div><div class="card-value" style="color:var(--warning)">2</div></div></div>
+      <div class="grid-2"><div class="card"><div class="card-title" style="margin-bottom:8px">告警事件列表 <span class="level-badge l1" style="cursor:pointer;margin-left:8px" onclick="filterAlerts('all')">全部</span> <span class="level-badge l1" style="cursor:pointer" onclick="filterAlerts('1')">一级</span> <span class="level-badge l2" style="cursor:pointer" onclick="filterAlerts('2')">二级</span> <span class="level-badge l3" style="cursor:pointer" onclick="filterAlerts('3')">三级</span></div><div id="alertList" style="max-height:450px;overflow-y:auto"></div></div><div class="card"><div class="card-title" style="margin-bottom:8px">告警趋势</div><div class="chart-wrap lg"><canvas id="chartAlertTrend"></canvas></div><div class="card-title" style="margin:16px 0 8px">类型分布</div><div class="chart-wrap sm"><canvas id="chartAlertType"></canvas></div></div></div>
     </div>
-  </div>
+  </div><!-- end #content -->
+</div><!-- end #main -->
+</div><!-- end #app -->
 
-  <!-- ═══ Right Panel: Info ═══ -->
-  <div class="side-panel" id="sidePanel">
+<!-- Alert Detail Modal -->
+<div class="modal-overlay" id="alertModal"><div class="modal" id="alertModalContent"></div></div>
 
-    <div class="panel-section">
-      <h3><span class="indicator" style="background:var(--server);"></span>中心机房 — 服务器集群</h3>
-      <ul class="detail-list">
-        <li>Infovision iPark 智慧园区管理平台</li>
-        <li>ISC 视频管理平台</li>
-        <li>3D 数字指挥舱 + AR 实景指挥舱</li>
-        <li>统一门禁管理平台</li>
-        <li>车辆定位管理平台</li>
-        <li>消防联动管理平台</li>
-        <li>道闸管理系统（智能停车）</li>
-        <li>DataEngine 数据底座</li>
-      </ul>
-      <div class="info-badges">
-        <span class="info-badge">应用服务器 ×N</span>
-        <span class="info-badge">存储 RAID 6</span>
-        <span class="info-badge">UPS 在线式 30 min</span>
-      </div>
-    </div>
-
-    <div class="panel-section">
-      <h3><span class="indicator" style="background:var(--third);"></span>第三方系统对接</h3>
-      <ul class="detail-list">
-        <li>MES 系统（OPC UA / RESTful）</li>
-        <li>ERP 系统（JDBC / API）</li>
-        <li>OA 系统（WebSocket）</li>
-        <li>消防报警主机（Modbus）</li>
-        <li>生产设备 PLC（OPC UA / Modbus）</li>
-      </ul>
-    </div>
-
-    <div class="panel-section">
-      <h3><span class="indicator" style="background:var(--terminal);"></span>展示与访问终端</h3>
-      <ul class="detail-list">
-        <li>数智运营中心大屏（园区数字看板）</li>
-        <li>BI 数据大屏（股东视角）</li>
-        <li>PC 管理端（运维 / 配置）</li>
-        <li>手机 APP（iOS / Android）</li>
-      </ul>
-      <div class="info-badges">
-        <span class="info-badge">超级管理员：全部项目数据</span>
-        <span class="info-badge">股东：所辖项目数据</span>
-        <span class="info-badge">数据隔离：DB 标签 + API 校验</span>
-      </div>
-    </div>
-
-    <div class="panel-section">
-      <h3><span class="indicator" style="background:var(--linkage);"></span>系统间联动关系</h3>
-      <div class="linkage-item">
-        <div class="link-title" style="color:var(--sub-loc);">人员管控闭环</div>
-        <div class="link-desc">人脸门禁 <span class="arrow">→</span> 人员定位 <span class="arrow">→</span> 视频监控复核</div>
-      </div>
-      <div class="linkage-item">
-        <div class="link-title" style="color:var(--sub-door);">车辆管控闭环</div>
-        <div class="link-desc">道闸管理 <span class="arrow">→</span> 车辆定位 <span class="arrow">→</span> 视频监控复核</div>
-      </div>
-      <div class="linkage-item">
-        <div class="link-title" style="color:var(--sub-fire);">火灾防控闭环</div>
-        <div class="link-desc">热成像云台 <span class="arrow">→</span> 视频复核 <span class="arrow">→</span> 平台联动消防</div>
-      </div>
-      <div class="linkage-item">
-        <div class="link-title" style="color:var(--core);">生产管理闭环</div>
-        <div class="link-desc">MES / ERP <span class="arrow">→</span> 综合管理平台 <span class="arrow">→</span> BI 大屏 / APP</div>
-      </div>
-      <div class="linkage-item">
-        <div class="link-title" style="color:var(--security);">消防联动</div>
-        <div class="link-desc">报警 <span class="arrow">→</span> 应急广播 (中老双语) <span class="arrow">→</span> 喷淋 <span class="arrow">→</span> 人员统计</div>
-      </div>
-      <div class="linkage-item">
-        <div class="link-title" style="color:var(--sub-fence);">安防联动</div>
-        <div class="link-desc">电子围栏报警 <span class="arrow">→</span> 监控弹屏 <span class="arrow">→</span> 声光 <span class="arrow">→</span> 广播威慑</div>
-      </div>
-    </div>
-
-    <div class="panel-section">
-      <h3><span class="indicator" style="background:#64748b;"></span>图例说明</h3>
-      <div class="info-badges">
-        <span class="info-badge" style="border-color:rgba(96,165,250,0.4);color:var(--core);">全光网 GPON/XGS-PON</span>
-        <span class="info-badge" style="border-color:rgba(74,222,128,0.4);color:var(--sub-cam);">四网逻辑隔离</span>
-        <span class="info-badge" style="border-color:rgba(251,146,60,0.4);color:var(--onu);">千兆 + WiFi 6</span>
-        <span class="info-badge" style="border-color:rgba(192,132,252,0.4);color:var(--sub-loc);">4G/5G + LoRa</span>
-        <span class="info-badge" style="border-color:rgba(248,113,113,0.4);color:var(--security);">深信服纵深防御</span>
-        <span class="info-badge" style="border-color:rgba(167,139,250,0.4);color:var(--cloud);">云端 API 服务</span>
-        <span class="info-badge" style="border-color:rgba(192,132,252,0.4);color:var(--third);">第三方系统对接</span>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- ═══ Detail Modal ═══ -->
-<div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
-  <div class="modal-card" onclick="event.stopPropagation()">
-    <div class="modal-type" id="modalType">设备详情</div>
-    <div class="modal-title" id="modalTitle">---</div>
-    <div class="modal-body" id="modalBody">---</div>
-    <div class="modal-footer">
-      <button class="modal-btn" onclick="closeModal()">关闭</button>
-    </div>
-  </div>
-</div>
+<!-- footer -->
+<div style="position:fixed;bottom:0;left:var(--nav-w);right:0;height:20px;background:var(--panel);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text2);z-index:50">ParkMatrix | 工业园一体化管控平台 | iSecure Center 底座</div>
 
 <script>
-"use strict";
-
-const db = {
-  cloud1:{title:'云值守火情研判',type:'云端服务 · Cloud',body:'基于 AI 图像识别技术，对热成像云台和视频监控画面进行实时分析，自动检测火情并推送告警。支持烟雾识别、火焰识别、温度异常检测，误报率低于 0.1%。与应急广播系统联动，触发后自动播放中老双语疏散广播。'},
-  cloud2:{title:'远程运维管理平台',type:'云端服务 · Cloud',body:'集中管理所有园区智能化设备的云端平台。支持设备状态监控、远程配置、固件 OTA 升级、日志采集分析、告警策略管理。提供多租户隔离，支持角色-项目-数据三维权限模型。'},
-  cloud3:{title:'移动 APP 后端服务',type:'云端服务 · Cloud',body:'为 iOS / Android 移动端提供 API 网关服务，包括推送通知、实时告警推送、视频预览、门禁远程控制等功能。采用 HTTPS + JSON 通信，支持 Token 认证和 SSL 双向验证。'},
-  sec1:{title:'NGAF 下一代防火墙',type:'网络安全 · 深信服',body:'深信服下一代防火墙，提供 L7 应用识别、入侵防御 (IPS)、防病毒 (AV)、Web 应用防护 (WAF) 等综合安全能力。支持四网 VLAN 隔离策略，对跨境访问实施深度包检测。'},
-  sec2:{title:'AC 上网行为管理',type:'网络安全 · 深信服',body:'深信服上网行为管理设备，实现流量审计、应用管控、URL 过滤、带宽管理等功能。按用户角色和 VLAN 网段制定差异化策略，内网和办公网实行白名单管控，访客外网做带宽限制。'},
-  sec3:{title:'SSL / IPSec VPN 跨境加密',type:'网络安全 · 深信服',body:'为中老跨境管理提供安全加密通道。支持 SSL VPN（移动端接入）和 IPSec VPN（站点到站点），加密算法 AES-256-GCM，支持多因子认证。确保股东和管理人员从中国远程安全访问园区系统。'},
-  core1:{title:'核心交换机',type:'核心网络 · L3 交换',body:'园区核心三层交换机，提供万兆上行接口连接 OLT 和服务器集群。支持 PoE++（60W/端口）为前端设备供电，支持 VLAN 间路由、ACL 访问控制、QoS 服务质量保障。采用 VRRP 热备，主备切换时间 < 50ms。'},
-  core2:{title:'OLT 光线路终端',type:'核心网络 · GPON/XGS-PON',body:'GPON / XGS-PON 光线路终端，推荐华为 EA5800 系列或锐捷 RG-IMC 系列。单 PON 口支持最大 1:128 分光比，下行速率 2.5G / 10G（GPON / XGS-PON），传输距离最大 40 km。支持 Type B 双归属保护。'},
-  odn1:{title:'1:4 分光器（车间区）',type:'ODN · 无源光分配',body:'部署于车间区域的无源分光器，1:4 分光比。车间区域带宽需求高，低分光比保障每个 ONU 获得更高带宽。采用 PLC 平面光波导技术，插入损耗 ≤ 7.2 dB。'},
-  odn2:{title:'1:8 分光器（仓库/周界）',type:'ODN · 无源光分配',body:'部署于仓库和周界区域，1:8 分光比。中等密度场景，平衡覆盖范围与单终端带宽。采用 PLC 技术，插入损耗 ≤ 10.5 dB，工作温度 -40 ~ 85℃。'},
-  odn3:{title:'1:16 分光器（办公楼）',type:'ODN · 无源光分配',body:'部署于办公楼区域，1:16 分光比。办公楼终端密度高但单终端带宽需求适中。采用 PLC 技术，插入损耗 ≤ 13.5 dB。配合室内 ONU 实现 WiFi 6 全覆盖。'},
-  onu1:{title:'室内 ONU（桌面型 / WiFi 6）',type:'ONU 接入 · 室内型',body:'桌面型光网络单元，内置 WiFi 6（802.11ax）无线接入点。提供 4 个千兆 LAN 口，支持 VLAN 划分和 QoS。部署于办公楼和宿舍区，提供高速内网和办公网接入。'},
-  onu2:{title:'工业 ONU（室外 PoE++ / IP67）',type:'ONU 接入 · 工业级',body:'室外工业级 ONU，IP67 防护等级，工作温度 -40 ~ 75℃。支持 PoE++（60W）对外供电，可直接为室外摄像头和无线 AP 供电。部署于周界、出入口等室外场景。'},
-  onu3:{title:'车间高密 ONU（8GE / PoE+）',type:'ONU 接入 · 高密度',body:'车间专用高密度 ONU，提供 8 个千兆 GE 端口，支持 PoE+（30W）。DIN 导轨安装，适应工业环境。连接车间内的监控摄像头、人脸门禁、道闸控制器等设备。'},
-  onu4:{title:'4G / 5G CPE（采伐区无线回传）',type:'ONU 接入 · 无线回传',body:'部署于采伐区等光纤无法覆盖的远端区域。支持 4G / 5G 蜂窝网络回传，内置 LoRa 物联专网网关，可接入各类低功耗传感器。为车辆定位、人员定位、环境监测等提供网络连接。'},
-  cam1:{title:'高清枪机',type:'视频监控 · 子系统一',body:'固定式高清网络摄像机，分辨率 200 万 / 400 万像素，支持 H.265 编码，红外夜视 30–50m，IP67 防护。部署于园区主干道、周界围墙。'},
-  cam2:{title:'高清半球',type:'视频监控 · 子系统一',body:'半球型高清网络摄像机，支持宽动态 (WDR)，内置拾音器。部署于办公楼大厅、走廊、电梯厅等室内场景。'},
-  cam3:{title:'智能警戒摄像机',type:'视频监控 · 子系统一',body:'内置 AI 芯片，支持越界检测、区域入侵、徘徊检测。异常行为自动联动声光报警和监控中心弹屏。部署于周界、仓库等重点区域。'},
-  cam4:{title:'热成像双光谱云台',type:'视频监控 · 子系统一',body:'可见光 + 热成像双通道云台。热成像支持火点检测和温度异常告警，可见光用于画面复核。360° 旋转，预置位巡航，部署于制高点。'},
-  cam5:{title:'热成像球机',type:'视频监控 · 子系统一',body:'一体化热成像网络球机，测温范围 -20 ~ 550℃，精度 ±2℃。发现异常温度自动上报，与消防联动平台对接，部署于木材加工车间。'},
-  cam6:{title:'人脸抓拍机',type:'视频监控 · 子系统一',body:'专业人脸抓拍摄像机，同时抓拍 30+ 张人脸，抓拍率 ≥ 99%。内置深度学习算法，支持人脸属性分析（年龄 / 性别 / 口罩检测）。'},
-  cam7:{title:'AI 智能分析服务器',type:'视频监控 · 子系统一',body:'GPU 算力服务器，运行深度学习视频分析算法。支持烟火检测、安全帽检测等 20+ 种 AI 算法。单台支持 128 路实时分析，GPU 型号 NVIDIA T4 / A10。'},
-  cam8:{title:'NVR 网络录像机 (RAID)',type:'视频监控 · 子系统一',body:'支持 RAID 5/6 磁盘阵列，单台 64 路接入，存储 ≥ 90 天。支持录像回放、智能检索、异地备份，与 ISC 视频管理平台对接。'},
-  loc1:{title:'4G 定位卡 (GPS / 北斗 + Cat.1)',type:'人员定位 · 子系统二',body:'可穿戴式定位终端，GPS + 北斗双模，精度 3–5m。内置 Cat.1 4G 模块实时上报位置，续航 72h（1min 间隔）。支持 SOS 一键报警和电子围栏告警。'},
-  loc2:{title:'SOS 一键报警终端',type:'人员定位 · 子系统二',body:'长按 SOS 键 3 秒触发报警，平台自动弹窗显示报警人员位置和身份信息，联动附近监控弹出画面，应急广播播放疏散指引。'},
-  loc3:{title:'第三方定位管理平台',type:'人员定位 · 子系统二',body:'人员定位数据汇聚和管理平台，提供实时位置展示、历史轨迹回放、电子围栏管理、考勤统计。通过 API 与综合管理平台对接。'},
-  loc4:{title:'GIS 网格划分管理',type:'人员定位 · 子系统二',body:'基于 GIS 将园区划分为管理网格，可设定人员数量上限和工种要求，超出或不足时自动告警。支持网格内人员统计和快速定位。'},
-  door1:{title:'人脸识别门禁一体机',type:'人脸门禁 · 子系统三',body:'7 寸触控屏人脸识别终端，5 万人脸库，识别速度 < 0.3 秒。支持活体检测（防照片 / 视频攻击），支持口罩识别，韦根 + RS-485 接口。'},
-  door2:{title:'闸机伴侣 (三辊闸 / 翼闸)',type:'人脸门禁 · 子系统三',body:'通行速度 30–40 人/分钟，支持消防联动紧急开启。部署于园区主入口和车间入口。'},
-  door3:{title:'门禁控制器 (离线 1 万条)',type:'人脸门禁 · 子系统三',body:'单门 / 双门门禁控制器，离线存储 1 万条通行记录。TCP/IP + RS-485 通信，断电数据不丢失。支持首卡开门、多卡开门、反潜回。'},
-  door4:{title:'访客预约管理系统',type:'人脸门禁 · 子系统三',body:'支持微信小程序预约、现场登记、人脸录入、临时权限下发。访客权限默认 8 小时有效，过期自动失效。支持黑名单管理和公安比对。'},
-  gate1:{title:'车牌识别一体机',type:'道闸管理 · 子系统四',body:'集成高清摄像头和车牌识别算法。支持蓝牌 / 黄牌 / 新能源车牌，识别率 ≥ 99.5%。内置补光灯，支持 4G 通信。'},
-  gate2:{title:'智能道闸',type:'道闸管理 · 子系统四',body:'直杆 / 栅栏杆智能道闸，抬杆 1.5–3 秒可调。支持遥控、车牌联动、消防联动。内置地感线圈和红外防砸保护。'},
-  gate3:{title:'出入口控制终端',type:'道闸管理 · 子系统四',body:'工业级嵌入式控制终端，负责识别结果处理、道闸控制和通行记录存储。支持白名单 / 黑名单，可存 10 万条记录，支持断网离线运行。'},
-  car1:{title:'GPS / 北斗车载终端',type:'车辆定位 · 子系统五',body:'车载定位终端，GPS + 北斗双模定位。内置 4G 模块实时上报位置、速度、方向。支持 ACC 检测、断油断电远程控制、超速告警、电子围栏。'},
-  car2:{title:'电子围栏超速告警',type:'车辆定位 · 子系统五',body:'在 GIS 地图上划定电子围栏区域和限速规则。进出围栏自动记录，超速实时告警。采伐区运输车辆全程监控。'},
-  fire1:{title:'热成像重载云台 (3–5 km)',type:'火灾监控 · 子系统六',body:'远距离热成像云台，探测距离 3–5 km。360° 连续旋转，预置位巡航。内置火点检测和烟雾识别算法，部署于园区最高点。'},
-  fire2:{title:'热成像中载云台 (1–2 km)',type:'火灾监控 · 子系统六',body:'中距离热成像云台，用于园区内部重点防火区域精细化监控。支持测温模式和火点检测模式切换。'},
-  fire3:{title:'烟感探测器',type:'火灾监控 · 子系统六',body:'光电式烟感探测器，灵敏度 0.1–0.3 dB/m。温度补偿和防虫网设计，二总线通信，接入消防报警主机。'},
-  fire4:{title:'弧光探测器',type:'火灾监控 · 子系统六',body:'用于配电柜和电气设备弧光检测，响应时间 < 1ms。与断路器联动，检测到弧光自动切断电源，预防电气火灾。'},
-  fence1:{title:'6 线制双防区脉冲主机',type:'电子围栏 · 子系统七',body:'高压脉冲电子围栏主机，6 线制，每台管理 2 个防区。输出电压 5–10kV 可调，脉冲能量 ≤ 5J，符合国家安全标准。短路 / 断路报警联动监控。'},
-  fence2:{title:'前端杆件 / 合金导线',type:'电子围栏 · 子系统七',body:'包括终端杆、承力杆、中间杆、合金导线、高压绝缘子等。铝镁合金导线，不锈钢杆件，适应老挝热带气候。'},
-  bcast1:{title:'网络广播主机 (中老双语)',type:'应急广播 · 子系统八',body:'IP 网络广播主机，支持中老双语预录语音。支持分区广播、全区广播、定时广播。与消防报警和电子围栏联动。'},
-  bcast2:{title:'室外音柱 / 室内音箱',type:'应急广播 · 子系统八',body:'室外防水音柱 (IP66)，30–60W，覆盖 50–100m。室内吸顶音箱 6–10W。全部 POE 供电，IP 网络接入，独立控制。'},
-  energy1:{title:'智能电表 / 智能水表',type:'能源监测 · 子系统九',body:'RS-485 / Modbus 通信智能电表和水表。电表支持三相电压 / 电流 / 功率因数 / 电能计量，精度 0.5S 级。水表超声波计量，精度 R250。'},
-  energy2:{title:'气象站 / 水位传感器',type:'环境监测 · 子系统九',body:'六要素气象站：温度、湿度、气压、风速、风向、雨量。水位传感器采用雷达液位计，精度 ±3mm，监测园区排水和河流水位。'},
-  energy3:{title:'倾角传感器',type:'环境监测 · 子系统九',body:'高精度双轴倾角传感器，分辨率 0.001°，精度 ±0.01°。监测边坡、挡墙和建筑物倾斜。LoRa 无线通信，电池续航 3 年。'},
-  grid1:{title:'500m × 500m 网格划分',type:'网格化管理 · 子系统十',body:'将采伐区按 500m × 500m 标准网格划分，每个网格作为独立作业单元。设定采伐产量上限，分配作业人员和车辆，GIS 可视化展示。'},
-  grid2:{title:'产量上限管控',type:'网格化管理 · 子系统十',body:'每个网格按日 / 周 / 月设定采伐量上限，达到上限自动告警并限制作业。车辆称重数据 + 人员定位数据交叉验证，超额需审批解锁。'},
-  oa1:{title:'OA / 财务 / 人力 / 考勤 / 薪资',type:'办公协同 · 子系统十一',body:'二期建设的统一办公协同门户，集成 OA 审批流、财务管理、人力资源管理、智能考勤（对接人脸门禁和人员定位）、薪资计算。LDAP 统一认证，中老双语界面。'},
-  oa2:{title:'LDAP 单点登录 · 中老双语',type:'办公协同 · 子系统十一',body:'基于 LDAP 的统一身份认证平台，实现所有智能化子系统（iPark / ISC / 门禁 / OA 等）的单点登录。支持角色-项目-数据三维权限模型，中文和老挝语一键切换。'}
+// ===== NAVIGATION =====
+const pageTitles={
+  dashboard:"园区总览",ar:"AR实景地图",video:"视频监控",access:"人员管控系统",
+  parking:"车辆管控系统",fire:"消防安全管理",situational:"综合数据看板",cardmgmt:"人脸门禁管理",
+  patrol:"网格化巡查",ops:"系统联动运维",energy:"能耗与环境监测",device:"设备台账管理",
+  alert:"告警中心"
 };
 
-function showDetail(id) {
-  const d = db[id]; if (!d) return;
-  document.getElementById('modalType').textContent = d.type;
-  document.getElementById('modalTitle').textContent = d.title;
-  document.getElementById('modalBody').textContent = d.body;
-  document.getElementById('modalOverlay').classList.add('show');
-  const label = document.getElementById('activeNodeLabel');
-  label.textContent = d.title;
-  document.getElementById('headerStatus').classList.add('has-focus');
-  document.querySelectorAll('.node.active').forEach(n => n.classList.remove('active'));
-  const el = document.querySelector(`[onclick="showDetail('${id}')"]`);
-  if (el) { el.classList.add('active'); el.scrollIntoView({behavior:'smooth',block:'nearest'}); }
-}
-
-function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('show');
-  document.getElementById('activeNodeLabel').textContent = '点击节点查看详情';
-  document.getElementById('headerStatus').classList.remove('has-focus');
-  document.querySelectorAll('.node.active').forEach(n => n.classList.remove('active'));
-}
-
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-
-// Ripple effect on node click
-document.querySelectorAll('.node').forEach(node => {
-  node.addEventListener('click', function(e) {
-    const ripple = document.createElement('span');
-    const rect = this.getBoundingClientRect();
-    const size = Math.max(rect.width, rect.height);
-    ripple.style.cssText = `
-      position:absolute;width:${size}px;height:${size}px;
-      left:${e.clientX - rect.left - size/2}px;top:${e.clientY - rect.top - size/2}px;
-      border-radius:50%;background:rgba(255,255,255,0.08);
-      transform:scale(0);animation:ripple 0.6s ease-out;pointer-events:none;z-index:0;
-    `;
-    this.appendChild(ripple);
-    setTimeout(() => ripple.remove(), 600);
+document.querySelectorAll(".nav-item").forEach(item=>{
+  item.addEventListener("click",()=>{
+    const page=item.dataset.page;
+    document.querySelectorAll(".nav-item").forEach(i=>i.classList.remove("active"));
+    item.classList.add("active");
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    const pg=document.getElementById("page-"+page);
+    if(pg)pg.classList.add("active");
+    document.getElementById("pageTitle").textContent=pageTitles[page]||page;
+    initChartsForPage(page);
   });
 });
 
-// Inject keyframe for ripple
-const style = document.createElement('style');
-style.textContent = '@keyframes ripple{to{transform:scale(3);opacity:0;}}';
-document.head.appendChild(style);
+function navTo(page){
+  document.querySelectorAll(".nav-item").forEach(i=>i.classList.remove("active"));
+  const t=document.querySelector('.nav-item[data-page="'+page+'"]');
+  if(t)t.classList.add("active");
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  const pg=document.getElementById("page-"+page);
+  if(pg)pg.classList.add("active");
+  document.getElementById("pageTitle").textContent=pageTitles[page]||page;
+  initChartsForPage(page);
+}
+
+// ===== LIVE TIME =====
+function updateTime(){
+  const now=new Date();
+  document.getElementById("liveTime").textContent=now.toLocaleDateString("zh-CN")+" "+now.toTimeString().slice(0,8);
+  // Also update AR overlay time
+  const arTime=document.getElementById("arTime");
+  if(arTime)arTime.textContent=now.toTimeString().slice(0,5);
+}
+setInterval(updateTime,1000);updateTime();
+
+// ===== SIMULATED LIVE DATA =====
+setInterval(()=>{
+  const ppl=document.getElementById("kpiPeople");
+  if(ppl)ppl.textContent=(1847+Math.floor(Math.random()*10)).toLocaleString();
+  const apt=document.getElementById("kpiAccessTotal");
+  if(apt)apt.textContent=(1840+Math.floor(Math.random()*15)).toLocaleString();
+  // AR overlay update
+  const arPeople=document.getElementById("arPeopleCount");
+  if(arPeople)arPeople.textContent="在园: "+(1847+Math.floor(Math.random()*10))+" 人";
+},5000);
+
+// ===== CAMERA GRID =====
+const cameras=[
+  {id:"CAM-01",loc:"园区主入口",type:"枪机",status:"live"},
+  {id:"CAM-02",loc:"1号车间内部",type:"半球",status:"live"},
+  {id:"CAM-03",loc:"仓库A区周界",type:"智能警戒",status:"live"},
+  {id:"CAM-04",loc:"开采区高点",type:"热成像云台",status:"live"},
+  {id:"CAM-05",loc:"办公楼大厅",type:"半球",status:"live"},
+  {id:"CAM-06",loc:"货运通道",type:"枪机",status:"live"},
+  {id:"CAM-07",loc:"2号车间高点",type:"热成像中载",status:"live"},
+  {id:"CAM-08",loc:"配电房",type:"热成像球机",status:"live"},
+  {id:"CAM-09",loc:"消防通道C区",type:"AI检测",status:"live"},
+  {id:"CAM-10",loc:"危化品存储区",type:"智能警戒",status:"live"},
+  {id:"CAM-11",loc:"成品仓库出口",type:"枪机",status:"live"},
+  {id:"CAM-12",loc:"周界东段",type:"智能警戒",status:"live"},
+];
+function buildCameraGrid(){
+  const grid=document.getElementById("cameraGrid");
+  if(!grid)return;
+  grid.innerHTML=cameras.map(c=>`
+    <div class="camera-cell" onclick="showCameraDetail('${c.id}','${c.loc}','${c.type}')">
+      <div class="scanner"></div><div class="cam-status ${c.status}"></div>
+      <div class="frame">${c.type.replace("热成像","").replace("智能","")}</div>
+      <div class="cam-overlay"><div class="cam-id">${c.id}</div><div class="cam-loc">${c.loc}</div></div>
+    </div>`).join("");
+}
+
+function showCameraDetail(id,loc,type){
+  document.getElementById("alertModalContent").innerHTML=
+    '<button class="modal-close" onclick="closeModal()">&times;</button>'+
+    '<h3>'+id+' - '+loc+'</h3>'+
+    '<div style="color:var(--text2);font-size:13px;line-height:2">'+
+    '<div>设备类型: '+type+'</div><div>部署位置: '+loc+'</div>'+
+    '<div>分辨率: 400万像素 | 编码: H.265'+'</div>'+
+    '<div>防护等级: IP67 | 在线状态: <span style="color:var(--success)">在线</span></div>'+
+    '<div>AI分析: '+(type.includes("热成像")?"温度监测+烟火识别":type.includes("智能")?"区域入侵+越界检测":type.includes("AI")?"消防通道占用检测":"人流密度统计")+'</div>'+
+    '<div style="margin-top:12px;padding:12px;background:var(--panel2);border-radius:8px">[模拟实时画面] '+loc+' 当前无异常</div></div>';
+  document.getElementById("alertModal").classList.add("show");
+}
+
+// ===== PARKING =====
+function buildParkingGrid(){
+  const grid=document.getElementById("parkingGrid");
+  if(!grid)return;
+  let html="";
+  const occupied=new Set();
+  while(occupied.size<89)occupied.add(Math.floor(Math.random()*327));
+  const haz=new Set();haz.add(300);haz.add(301);haz.add(302);
+  for(let i=0;i<327;i++){
+    let cls="pk-spot";
+    if(haz.has(i))cls+=" reserved";
+    else if(occupied.has(i))cls+=" occupied";
+    html+='<div class="'+cls+'" title="车位'+(i+1)+(haz.has(i)?" [危化品专用]":occupied.has(i)?" [已占用]":" [空闲]")+'"></div>';
+  }
+  grid.innerHTML=html;
+}
+
+// ===== DEVICE TABLE =====
+const devices=[
+  {id:"DEV-001",name:"高清网络枪机",sub:"视频监控",model:"主流系列",loc:"室外主干道",status:"online"},
+  {id:"DEV-002",name:"高清网络半球",sub:"视频监控",model:"主流系列",loc:"室内车间",status:"online"},
+  {id:"DEV-003",name:"智能警戒摄像机",sub:"视频监控",model:"智能系列",loc:"周界",status:"online"},
+  {id:"DEV-004",name:"热成像双光谱重载云台",sub:"视频监控",model:"热成像系列",loc:"开采区高点",status:"online"},
+  {id:"DEV-005",name:"热成像双光谱中载云台",sub:"视频监控",model:"热成像系列",loc:"车间高点",status:"online"},
+  {id:"DEV-006",name:"热成像双光谱球机",sub:"视频监控",model:"热成像系列",loc:"配电房",status:"online"},
+  {id:"DEV-007",name:"视频AI智能分析服务器",sub:"视频监控",model:"AI分析系列",loc:"中心机房",status:"online"},
+  {id:"DEV-008",name:"NVR网络录像机",sub:"视频监控",model:"NVR存储系列",loc:"中心机房",status:"online"},
+  {id:"DEV-009",name:"4G定位卡",sub:"人员定位",model:"第三方",loc:"全员佩戴",status:"online"},
+  {id:"DEV-010",name:"人脸识别门禁一体机",sub:"人脸门禁",model:"明眸系列",loc:"楼宇入口",status:"online"},
+  {id:"DEV-011",name:"人脸识别闸机伴侣",sub:"人脸门禁",model:"闸机伴侣系列",loc:"主出入口",status:"online"},
+  {id:"DEV-012",name:"门禁控制器",sub:"人脸门禁",model:"门禁控制系列",loc:"各通行节点",status:"online"},
+  {id:"DEV-013",name:"智能车牌识别一体机",sub:"道闸管理",model:"车牌识别系列",loc:"各出入口",status:"online"},
+  {id:"DEV-014",name:"智能道闸",sub:"道闸管理",model:"智能道闸系列",loc:"各出入口",status:"online"},
+  {id:"DEV-015",name:"GPS/北斗车载终端",sub:"车辆定位",model:"车载终端系列",loc:"物流车",status:"online"},
+  {id:"DEV-016",name:"危化品车辆专用终端",sub:"车辆定位",model:"危化品终端",loc:"危化品车",status:"online"},
+  {id:"DEV-017",name:"OBD车载诊断终端",sub:"车辆定位",model:"OBD终端系列",loc:"自有车辆",status:"online"},
+  {id:"DEV-018",name:"烟感探测器",sub:"火灾监控",model:"消防产品系列",loc:"车间仓库",status:"online"},
+  {id:"DEV-019",name:"弧光探测器",sub:"火灾监控",model:"消防产品系列",loc:"配电房",status:"online"},
+  {id:"DEV-020",name:"脉冲电子围栏主机",sub:"电子围栏",model:"6线制双防区",loc:"危化品区/配电房",status:"warning"},
+  {id:"DEV-021",name:"网络广播主机",sub:"应急广播",model:"IP网络架构",loc:"中心机房",status:"online"},
+  {id:"DEV-022",name:"室外防水音柱",sub:"应急广播",model:"60W/120W",loc:"室外区域",status:"online"},
+  {id:"DEV-023",name:"智能电表",sub:"能源监测",model:"Modbus RTU",loc:"各区域",status:"online"},
+  {id:"DEV-024",name:"气象站",sub:"环境监测",model:"多参数",loc:"开采区高点",status:"online"},
+  {id:"DEV-025",name:"倾角/位移传感器",sub:"环境监测",model:"边坡监测",loc:"开采区边坡",status:"online"},
+  {id:"DEV-026",name:"深信服下一代防火墙",sub:"网络安全",model:"NGAF",loc:"互联网出口",status:"online"},
+  {id:"DEV-027",name:"深信服上网行为管理",sub:"网络安全",model:"AC",loc:"办公网出口",status:"online"},
+  {id:"DEV-028",name:"深信服终端检测响应",sub:"网络安全",model:"EDR",loc:"全终端",status:"online"},
+  {id:"DEV-029",name:"深信服安全感知平台",sub:"网络安全",model:"SIP",loc:"中心机房",status:"online"},
+  {id:"DEV-030",name:"OLT光线路终端",sub:"全光网络",model:"EA5800",loc:"中心机房",status:"online"},
+  {id:"DEV-031",name:"ONU光网络单元",sub:"全光网络",model:"多型号",loc:"各区域",status:"online"},
+  {id:"DEV-032",name:"核心交换机",sub:"基础设施",model:"万兆上行",loc:"中心机房",status:"online"},
+  {id:"DEV-033",name:"应用服务器",sub:"基础设施",model:"双路128GB",loc:"中心机房",status:"online"},
+  {id:"DEV-034",name:"存储服务器",sub:"基础设施",model:"RAID6",loc:"中心机房",status:"online"},
+  {id:"DEV-035",name:"UPS不间断电源",sub:"基础设施",model:"在线式30min",loc:"中心机房",status:"online"},
+];
+function buildDeviceTable(filter=""){
+  const tbody=document.getElementById("deviceTbody");
+  if(!tbody)return;
+  const list=filter?devices.filter(d=>d.name.includes(filter)||d.id.includes(filter)||d.sub.includes(filter)||d.loc.includes(filter)):devices;
+  tbody.innerHTML=list.map(d=>'<tr><td>'+d.id+'</td><td>'+d.name+'</td><td>'+d.sub+'</td><td>'+d.model+'</td><td>'+d.loc+'</td><td><span class="status-badge '+(d.status==="online"?"online":d.status==="warning"?"warning":"offline")+'">'+(d.status==="online"?"在线":d.status==="warning"?"告警":"离线")+'</span></td></tr>').join("");
+}
+function filterDeviceTable(v){buildDeviceTable(v);}
+
+// ===== ALERTS =====
+const allAlerts=[
+  {level:"1",title:"电子围栏-危化品区入侵告警",time:"14:32:18",loc:"危化品存储区",detail:"脉冲电子围栏检测到入侵信号，防区2触发一级报警。已联动监控CAM-10弹屏，声光报警启动。",status:"处理中"},
+  {level:"2",title:"热成像云台-3号开采区温度异常",time:"14:28:05",loc:"3号开采区制高点",detail:"热成像重载云台检测到温度异常升高（当前56.8C，阈值55C），已推送云端值守复核。",status:"复核中"},
+  {level:"2",title:"消防通道-C区通道被占用",time:"14:15:42",loc:"消防通道C区",detail:"AI检测摄像机识别到货车占用消防通道超时，车牌云F77890，已通知物业处理。",status:"处理中"},
+  {level:"3",title:"人员定位-开采区B区越网格",time:"13:58:21",loc:"开采区B区",detail:"作业人员王XX（工号B0231）离开分配网格B-005，进入B-007区域，已通知班组长核实。",status:"已处理"},
+  {level:"1",title:"配电房-弧光探测器预警",time:"13:42:09",loc:"高压配电房",detail:"弧光探测器检测到3号配电柜弧光放电故障，已自动联动断路器保护。热成像球机显示柜体表面温度72C。",status:"处理中"},
+  {level:"3",title:"门禁-黑名单人员预警",time:"13:20:33",loc:"办公楼一层大厅",detail:"人脸门禁识别到黑名单人员李XX尝试通行，已自动拒绝并通知安保，最近摄像机CAM-05已调取画面。",status:"已处理"},
+  {level:"2",title:"车辆定位-危化品车偏离路线",time:"11:45:10",loc:"园区内部道路",detail:"车牌云F99012偏离指定危化品行驶路线超过100米，已在GIS地图标注当前位置。",status:"已处理"},
+  {level:"3",title:"人员定位-配电房脱岗告警",time:"10:30:00",loc:"配电房值班室",detail:"值班人员张XX离开配电房超过5分钟，触发在离岗检测告警，已通知上级主管。",status:"已处理"},
+];
+function buildAlertList(filter="all"){
+  const list=document.getElementById("alertList");
+  if(!list)return;
+  const filtered=filter==="all"?allAlerts:allAlerts.filter(a=>a.level===filter);
+  list.innerHTML=filtered.map((a,i)=>'<div class="alert-item l'+a.level+'" onclick="showAlertDetail('+i+')"><span class="level-badge l'+a.level+'">'+(a.level==="1"?"一级":a.level==="2"?"二级":"三级")+'</span><span style="flex:1">'+a.title+'</span><span class="time">'+a.time+'</span></div>').join("");
+}
+function filterAlerts(l){buildAlertList(l);}
+function showAlertDetail(i){
+  const a=allAlerts[i];
+  document.getElementById("alertModalContent").innerHTML=
+    '<button class="modal-close" onclick="closeModal()">&times;</button>'+
+    '<h3><span class="level-badge l'+a.level+'" style="margin-right:8px">'+(a.level==="1"?"一级":a.level==="2"?"二级":"三级")+'</span>'+a.title+'</h3>'+
+    '<div style="color:var(--text2);font-size:13px;line-height:2">'+
+    '<div>告警时间: '+a.time+'</div><div>告警位置: '+a.loc+'</div>'+
+    '<div>当前状态: <span style="color:'+(a.status==="已处理"?"var(--success)":"var(--warning)")+'">'+a.status+'</span></div>'+
+    '<div style="margin-top:12px;padding:12px;background:var(--panel2);border-radius:8px">详情: '+a.detail+'</div>'+
+    '<div style="margin-top:12px">处理流程: 系统检测 | 自动弹屏预警 | '+(a.level==="1"?"声光报警+短信+应急广播 | ":"APP推送+通知责任人 | ")+a.status+'</div></div>';
+  document.getElementById("alertModal").classList.add("show");
+}
+function closeModal(){document.getElementById("alertModal").classList.remove("show");}
+document.getElementById("alertModal").addEventListener("click",function(e){if(e.target===this)closeModal();});
+
+// ===== CHARTS =====
+const chartInstances={};
+function destroyCharts(prefix){Object.keys(chartInstances).filter(k=>k.startsWith(prefix)).forEach(k=>{try{chartInstances[k].destroy()}catch(e){}delete chartInstances[k];});}
+function makeChart(id,config){if(typeof Chart==='undefined')return null;const c=document.getElementById(id);if(!c)return null;destroyCharts(id);const ctx=c.getContext("2d");chartInstances[id]=new Chart(ctx,config);return chartInstances[id];}
+const glassOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:"#8b95a5",font:{size:10},padding:12,usePointStyle:true,pointStyleWidth:6}}},scales:{x:{ticks:{color:"#8b95a5",font:{size:10}},grid:{color:"rgba(30,42,58,.5)"}},y:{ticks:{color:"#8b95a5",font:{size:10}},grid:{color:"rgba(30,42,58,.5)"}}}};
+function chartOpts(){return JSON.parse(JSON.stringify(glassOpts));}
+
+function initDashboardCharts(){
+  const invLabels=["机房管线","视频监控","人员定位","综合平台","全光网络","道闸管理","网络安全","人脸门禁","能源与环境监测","应急广播","车辆定位","火灾监控","电子围栏"];
+  const invData=[106.65,101.89,100.80,94.90,74.36,25.12,22.00,20.20,19.70,13.20,9.50,8.12,6.94];
+  const invColors=["#00b4d8","#00d4ff","#9b5de5","#f15bb5","#0077b6","#ff6b35","#ffd166","#2ecc71","#8b95a5","#e63946","#ff6b35","#ffd166","#8b95a5"];
+  makeChart("chartInvest",{type:"doughnut",data:{labels:invLabels,datasets:[{data:invData,backgroundColor:invColors,borderColor:"#131a2b",borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"right",labels:{color:"#8b95a5",font:{size:9},padding:6}}}}});
+  makeChart("chartOnline",{type:"bar",data:{labels:["摄像机","门禁","道闸","定位卡","热成像","烟感","ONU","服务器"],datasets:[{label:"在线率%",data:[98.8,100,100,99.5,100,100,99.2,100],backgroundColor:"#00b4d8",borderRadius:4}]},options:{indexAxis:"y",...chartOpts(),plugins:{legend:{display:false}}}});
+  makeChart("chartEnv",{type:"radar",data:{labels:["降雨量","温度","湿度","土壤含水率","水位","PM2.5","风速","火险指数"],datasets:[{label:"当前值(归一化)",data:[0.4,0.65,0.7,0.55,0.3,0.25,0.35,0.42],backgroundColor:"rgba(0,180,216,.15)",borderColor:"#00b4d8",borderWidth:2,pointBackgroundColor:"#00b4d8"},{label:"预警阈值",data:[0.6,0.85,0.85,0.7,0.7,0.5,0.7,0.5],backgroundColor:"rgba(230,57,70,.05)",borderColor:"#e63946",borderWidth:1,borderDash:[4,4],pointBackgroundColor:"#e63946"}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:"#8b95a5",font:{size:9}}}},scales:{r:{ticks:{display:false},grid:{color:"rgba(30,42,58,.5)"},pointLabels:{color:"#8b95a5",font:{size:10}}}}}});
+  makeChart("chartArch",{type:"bar",data:{labels:["感知层","网络层","平台层","应用层"],datasets:[{label:"摄像机/传感器",data:[45,0,0,0],backgroundColor:"#00b4d8"},{label:"定位/门禁/道闸",data:[38,0,0,0],backgroundColor:"#0077b6"},{label:"全光网GPON",data:[0,30,0,0],backgroundColor:"#2ecc71"},{label:"4G/5G/LoRa",data:[0,15,0,0],backgroundColor:"#ffd166"},{label:"物联底座",data:[0,0,8,0],backgroundColor:"#9b5de5"},{label:"数据/AI底座",data:[0,0,10,0],backgroundColor:"#f15bb5"},{label:"大屏/PC/APP",data:[0,0,0,12],backgroundColor:"#ff6b35"}]},options:{...chartOpts(),plugins:{legend:{display:false}},scales:{x:{stacked:true,ticks:{color:"#fff",font:{size:11}}},y:{stacked:true,display:false}}}});
+}
+
+function initVideoCharts(){
+  makeChart("chartThermal",{type:"line",data:{labels:["云台1","云台2","云台3","球机1","球机2","球机3"],datasets:[{label:"实时温度(C)",data:[42.5,38.2,56.8,35.1,40.3,72.0],borderColor:"#ff6b35",backgroundColor:"rgba(255,107,53,.1)",fill:true,tension:.3},{label:"预警阈值",data:[55,55,55,80,80,80],borderColor:"#e63946",borderDash:[5,5],fill:false}]},options:chartOpts()});
+}
+
+function initAccessCharts(){
+  makeChart("chartDoor",{type:"bar",data:{labels:["主入口","办公楼","1号车间","2号车间","3号车间","4号车间","仓库A","仓库B"],datasets:[{label:"通行次数",data:[1250,680,320,290,310,280,180,150],backgroundColor:"#00b4d8",borderRadius:4}]},options:chartOpts()});
+  makeChart("chartPeople",{type:"bar",data:{labels:["开采A区","开采B区","开采C区","1号车间","2号车间","3号车间","4号车间","仓库区","办公区","食堂宿舍"],datasets:[{label:"人数",data:[215,198,176,142,138,145,132,68,320,113],backgroundColor:["#00b4d8","#00b4d8","#00b4d8","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#ffd166","#9b5de5","#f15bb5"]}]},options:{indexAxis:"y",...chartOpts(),plugins:{legend:{display:false}}}});
+  makeChart("chartTrack",{type:"line",data:{labels:["09:00","09:05","10:30","11:15","12:00","13:20"],datasets:[{label:"轨迹",data:[0,150,320,280,400,350],borderColor:"#ff6b35",tension:.3,pointRadius:4,pointBackgroundColor:["#00b4d8","#00b4d8","#00b4d8","#00b4d8","#00b4d8","#e63946"]}]},options:{...chartOpts(),plugins:{legend:{display:false}},scales:{y:{display:false}}}});
+}
+
+function initFireCharts(){
+  makeChart("chartFireDevice",{type:"bar",data:{labels:["热成像云台","烟感探测器","弧光探测器","消防通道AI","灭火器","消防栓","喷淋头"],datasets:[{label:"数量",data:[6,128,4,12,86,32,240],backgroundColor:["#e63946","#ff6b35","#ffd166","#00b4d8","#2ecc71","#2ecc71","#2ecc71"]}]},options:{...chartOpts(),plugins:{legend:{display:false}}}});
+}
+
+function initEnergyCharts(){
+  makeChart("chartEnergyArea",{type:"bar",data:{labels:["1号车间","2号车间","3号车间","4号车间","办公楼","仓库","食堂宿舍","机房"],datasets:[{label:"用电(kWh)",data:[2850,2620,2410,1890,680,1240,340,520],backgroundColor:"#00b4d8",borderRadius:4},{label:"用水(吨)",data:[18,15,14,12,8,10,5,4],backgroundColor:"#2ecc71",borderRadius:4}]},options:chartOpts()});
+  makeChart("chartEnergyTrend",{type:"line",data:{labels:["6/10","6/11","6/12","6/13","6/14","6/15","6/16"],datasets:[{label:"用电(千kWh)",data:[13.2,12.8,13.5,12.9,11.8,12.1,12.85],borderColor:"#00b4d8",tension:.3,fill:true,backgroundColor:"rgba(0,180,216,.1)"},{label:"用水(吨)",data:[82,85,88,90,78,80,86.5],borderColor:"#2ecc71",tension:.3,fill:true,backgroundColor:"rgba(46,204,113,.05)"}]},options:chartOpts()});
+}
+
+function initDeviceCharts(){
+  makeChart("chartDeviceType",{type:"doughnut",data:{labels:["摄像机","门禁终端","定位设备","道闸设备","传感器","网络设备","服务器/存储","广播设备","安全设备"],datasets:[{data:[24,16,8,8,18,14,8,6,5],backgroundColor:["#00b4d8","#0077b6","#9b5de5","#f15bb5","#ffd166","#2ecc71","#ff6b35","#e63946","#8b95a5"]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"right",labels:{color:"#8b95a5",font:{size:9},padding:6}}}}});
+  makeChart("chartDeviceOnline",{type:"bar",data:{labels:["视频监控","人员定位","人脸门禁","道闸管理","车辆定位","火灾监控","电子围栏","全光网络","应急广播","能源与环境监测","网络安全"],datasets:[{label:"在线率%",data:[98.8,99.5,100,100,100,100,95,99.2,100,100,100],backgroundColor:["#00b4d8","#00b4d8","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#ff6b35","#00b4d8","#2ecc71","#2ecc71","#2ecc71"]}]},options:{...chartOpts(),plugins:{legend:{display:false}},scales:{y:{min:90,max:100}}}});
+}
+
+function initAlertCharts(){
+  makeChart("chartAlertTrend",{type:"line",data:{labels:["6/10","6/11","6/12","6/13","6/14","6/15","6/16"],datasets:[{label:"一级",data:[1,0,2,1,0,1,2],borderColor:"#e63946",tension:.3},{label:"二级",data:[3,2,4,3,2,5,2],borderColor:"#ff6b35",tension:.3},{label:"三级",data:[5,6,4,5,3,7,1],borderColor:"#00b4d8",tension:.3}]},options:chartOpts()});
+  makeChart("chartAlertType",{type:"doughnut",data:{labels:["周界入侵","消防火情","人员越界","设备故障","车辆违规","门禁异常"],datasets:[{data:[15,8,12,5,7,3],backgroundColor:["#e63946","#ff6b35","#00b4d8","#ffd166","#9b5de5","#f15bb5"]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"right",labels:{color:"#8b95a5",font:{size:9},padding:6}}}}});
+}
+
+// NEW PAGE CHARTS
+function initSituationalCharts(){
+  makeChart("chartRadar",{type:"radar",data:{labels:["视频在线率","门禁正常率","报警响应率","设备完好率","巡查完成率","访客合规率"],datasets:[{label:"当前值",data:[98.8,99.5,97.5,99.2,92.0,99.1],backgroundColor:"rgba(0,180,216,.15)",borderColor:"#00b4d8",borderWidth:2,pointBackgroundColor:"#00b4d8"},{label:"达标线",data:[95,95,90,95,85,95],backgroundColor:"rgba(46,204,113,.05)",borderColor:"#2ecc71",borderWidth:1,borderDash:[4,4]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:"#8b95a5",font:{size:9}}}},scales:{r:{ticks:{display:false},grid:{color:"rgba(30,42,58,.5)"},pointLabels:{color:"#8b95a5",font:{size:10}},min:80, max:100}}}});
+  makeChart("chartRiskTrend",{type:"line",data:{labels:Array.from({length:30},(_,i)=>i+1),datasets:[{label:"风险指数",data:Array.from({length:30},()=>Math.floor(Math.random()*20+10)),borderColor:"#ff6b35",backgroundColor:"rgba(255,107,53,.1)",fill:true,tension:.3},{label:"周均线",data:Array(30).fill(16),borderColor:"#00b4d8",borderDash:[5,5],fill:false}]},options:{...chartOpts(),scales:{y:{min:0,max:40}}}});
+  // Heatmap
+  const heatmap=document.getElementById("heatmapGrid");
+  if(heatmap){
+    const zones=["危化品区","原料仓库","配电房","1号车间","办公楼","开采区B","成品仓库","2号车间","食堂","宿舍","主入口","停车场"];
+    const risks=[0.85,0.55,0.90,0.35,0.20,0.78,0.30,0.40,0.15,0.10,0.25,0.45];
+    heatmap.innerHTML=zones.map((z,i)=>{
+      const r=risks[i];let color;
+      if(r>0.7)color="#e63946";else if(r>0.4)color="#ff6b35";else color="#2ecc71";
+      return '<div style="background:'+color+';opacity:'+r+';aspect-ratio:1;border-radius:2px;cursor:pointer" title="'+z+': 风险指数 '+(r*100).toFixed(0)+'"></div>';
+    }).join("");
+  }
+}
+
+function initOpsCharts(){
+  makeChart("chartOpsFault",{type:"bar",data:{labels:["6/10","6/11","6/12","6/13","6/14","6/15","6/16"],datasets:[{label:"故障数",data:[3,2,5,4,2,8,4],backgroundColor:"#ff6b35",borderRadius:4},{label:"已修复",data:[3,2,4,4,2,6,2],backgroundColor:"#2ecc71",borderRadius:4}]},options:{...chartOpts(),scales:{x:{stacked:true},y:{stacked:true}}}});
+}
+
+// ===== HEATMAP (iSecure style) =====
+function initSituationalHeatmap(){
+  const heatmap=document.getElementById("heatmapGrid");
+  if(!heatmap)return;
+  const zones=["危化品区","原料仓库","配电房","1号车间","办公楼","开采区B","成品仓库","2号车间","食堂","宿舍","主入口","停车场"];
+  const risks=[0.85,0.55,0.90,0.35,0.20,0.78,0.30,0.40,0.15,0.10,0.25,0.45];
+  heatmap.innerHTML=zones.map((z,i)=>{
+    const r=risks[i];let color;
+    if(r>0.7)color="#e63946";else if(r>0.4)color="#ff6b35";else color="#2ecc71";
+    return '<div style="background:'+color+';opacity:'+(r*0.8+0.2)+';aspect-ratio:1;border-radius:2px;cursor:pointer;transition:all .3s" title="'+z+': 风险指数 '+(r*100).toFixed(0)+'" onmouseover="this.style.transform=\'scale(1.15)\';this.style.zIndex=\'2\'" onmouseout="this.style.transform=\'scale(1)\';this.style.zIndex=\'1\'">'+z.slice(0,2)+'</div>';
+  }).join("");
+}
+
+// Page chart init router
+const pageChartInits={
+  dashboard:initDashboardCharts,video:initVideoCharts,access:initAccessCharts,
+  fire:initFireCharts,energy:initEnergyCharts,device:initDeviceCharts,
+  alert:initAlertCharts,situational:initSituationalCharts,
+  ops:initOpsCharts
+};
+function initChartsForPage(page){
+  if(typeof Chart==='undefined')return;
+  if(pageChartInits[page])pageChartInits[page]();
+  if(page==="situational")initSituationalHeatmap();
+}
+
+// ===== INIT =====
+document.addEventListener("DOMContentLoaded",()=>{
+  try{buildCameraGrid();}catch(e){console.warn("buildCameraGrid failed",e);}
+  try{buildParkingGrid();}catch(e){console.warn("buildParkingGrid failed",e);}
+  try{buildDeviceTable();}catch(e){console.warn("buildDeviceTable failed",e);}
+  try{buildAlertList();}catch(e){console.warn("buildAlertList failed",e);}
+});
+
+// Chart.js async loading - cdnjs primary, jsdelivr fallback
+(function(){
+  function initChartsWhenReady(){
+    try{initDashboardCharts();}catch(e){console.warn("initDashboardCharts failed",e);}
+  }
+  if(typeof Chart!=='undefined'){initChartsWhenReady();return;}
+  var s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js';
+  s.onload=function(){initChartsWhenReady();};
+  s.onerror=function(){
+    var s2=document.createElement('script');
+    s2.src='https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js';
+    s2.onload=function(){initChartsWhenReady();};
+    document.head.appendChild(s2);
+  };
+  document.head.appendChild(s);
+})();
 </script>
 </body>
 </html>
